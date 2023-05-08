@@ -1,0 +1,19 @@
+charge - 4,4 %
+payment link - 5,9%
+
+acount - A Financial Connections Account represents an account that exists outside of Stripe, 
+to which you have been granted some degree of access.
+
+payout - a transfer from stripe to a external acount, if you dont specify the destination, it use the default acount for
+the currency.(you have to give the ID than stripe give the acount)
+
+customer - clients of the app.
+
+
+
+user = 146@gmail - good
+user = 147@gmail - good
+
+payzen
+
+
