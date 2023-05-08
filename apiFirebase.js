@@ -32,7 +32,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const DB = getFirestore(app)
-const auth = getAuth();
+const auth = getAuth(app);
 
 const getUsers = async () => {
     const DBRef = await collection(DB, "Users");

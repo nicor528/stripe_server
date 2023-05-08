@@ -21,6 +21,7 @@ app.use(cors({
   credentials: true
 }));*/
 //app.options('*', cors());
+app.use(express.static('public'));
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 /*
@@ -45,7 +46,7 @@ app.use(SingIn)
 app.use(Verify)
 app.use(stripePoints)
 app.use(Edits)
-app.use(express.static('public'));/*
+/*
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
     console.log(`Request body: ${JSON.stringify(req.body)}`);
