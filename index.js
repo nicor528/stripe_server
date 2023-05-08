@@ -15,11 +15,11 @@ const app = express()
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', "application/json"],
   optionsSuccessStatus: 200 
-};*/
+};*//*
 app.use(cors({
   origin: 'http://localhost:3000',
   credentials: true
-}));
+}));*/
 //app.options('*', cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
@@ -34,16 +34,23 @@ app.use((req, res, next) => {
     }
     next();
   });*/
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    next();
+});
 app.use(SingIn)
 app.use(Verify)
 app.use(stripePoints)
 app.use(Edits)
-app.use(express.static('public'));
+app.use(express.static('public'));/*
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
     console.log(`Request body: ${JSON.stringify(req.body)}`);
     next();
-  });
+  });*/
 
 
 app.post("/transfer", async (req, res) => {
