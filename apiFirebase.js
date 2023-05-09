@@ -331,7 +331,7 @@ function updateUserBalance (id, amount,transID, action, email, status, date) {
                             action: action,
                             status: status,
                             date: date,
-                            userInteraction: action === "charge" || action === "withdraw" ? undefined : email,
+                            userInteraction: action === "charge" || action === "withdraw" ? "N/A" : email,
                         })
                 })
                 const docSnap = await getDoc(docRef);
