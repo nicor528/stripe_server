@@ -307,7 +307,7 @@ function updateBalance (amount) {
     )
 }
 
-function updateUserBalance (id, amount,transID, action, email, status) {
+function updateUserBalance (id, amount,transID, action, email, status, date) {
     return (
         new Promise (async (res,rej)=> {
             const docRef = doc(DB, 'Users', id);
@@ -316,20 +316,21 @@ function updateUserBalance (id, amount,transID, action, email, status) {
             if (docSnap1.exists()) {
                 const user = docSnap1.data()
                 const newAmount = user.amount.amount + amount
-                if(action === "transfer"){
+                /*if(action === "transfer"){
                     amount2 = amount * -1
                 }else if(action === "recived"){
                     amount2 = amount
-                }
+                }*/
                     await updateDoc(docRef, {
                     amount: {
                         amount: newAmount
                     },
                     transactions: arrayUnion(
                         {   id: transID,
-                            amount: amount2,
+                            amount: amount,
                             action: action,
                             status: status,
+                            date: date,
                             userInteraction: action === "charge" || action === "withdraw" ? undefined : email,
                         })
                 })

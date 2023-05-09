@@ -56,7 +56,6 @@ app.use((req, res, next) => {
 
 app.post("/transfer", async (req, res) => {
     await console.log(req.body)
-
     res.status(200).send("www.google.com.ar");
 })
 
