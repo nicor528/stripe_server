@@ -1,5 +1,5 @@
 const express = require('express');
-const { getDataUser, addCard, setBanckAccount, activateWallet, updateBalance, updateUserBalance, searchDestination } = require('../apiFirebase');
+const { getDataUser, addCard, setBanckAccount, activateWallet, updateBalance, updateUserBalance, searchDestination, generateID } = require('../apiFirebase');
 const { createCard, createBanckAccount, addMoney, getBalance, withdraw } = require('../apiStripe');
 const router = express.Router();
 
@@ -49,7 +49,7 @@ router.post("/chargeMoney", async (req, res) => {
         addMoney(user.stripe.customerID, amount).then(charge=>{
             console.log(charge)
             updateBalance(userAmount).then(user => {
-                updateUserBalance(id, userAmount).then(user=>{
+                updateUserBalance(id, userAmount, charge.id, "charge", "", charge.status).then(user=>{
                     res.status(200).send(user)
                 })
             })
@@ -65,7 +65,7 @@ router.post("/withdraw", async (req, res) => {
         if(user.amount.amount >= amount){
             withdraw(user.stripe.accountID, stripeAmount).then(transfer => {
                 updateBalance(-amount).then(balance => {
-                    updateUserBalance(id, -amount).then(user =>{
+                    updateUserBalance(id, -amount, transfer.id, "withdraw", "", "succeeded").then(user =>{
                         res.status(200).send(user)
                     })
                 })
@@ -81,21 +81,23 @@ router.post("/userTranfer", async (req, res)=> {
     const amount = req.body.amount;
     const stripeAmount = amount * 100
     const destination = req.body.destination
-    getDataUser(id).then(user=>{
+    getDataUser(id).then(async(user)=>{
         if(user.amount.amount >= amount){
+            const userEmail = user.email;
+            const transactionID = await generateID();
             searchDestination(destination).then(user => {
-                updateUserBalance(user.id, amount).then(user=>{
-                    updateUserBalance(id, -amount).then(user=>{
+                updateUserBalance(user.id, amount, transactionID, "recived", userEmail, "succeeded").then(user=>{
+                    updateUserBalance(id, -amount, transactionID, "transfer", destination, "succeeded").then(user=>{
                         res.status(200).send(user)
                     })
                 })
-            }).catch(error =>{
+            })
+            .catch(error =>{
                 if(error == 2){
                     res.status(402).send({error: "Not"})
                 }else{
                     res.status(401).send({error: "Not"})
                 }
-
             })
         }else{
             res.status(400).send({error: "Not suficient founds"})

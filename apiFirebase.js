@@ -31,8 +31,18 @@ const firebaseConfig = {
 }
 
 const app = initializeApp(firebaseConfig);
-const DB = getFirestore(app)
+const DB = getFirestore(app);
 const auth = getAuth(app);
+
+function generateID () {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let code = '';
+        for (let i = 0; i < 6; i++) {
+          const randomIndex = Math.floor(Math.random() * characters.length);
+          code += characters[randomIndex];
+        }
+        return code;
+}
 
 const getUsers = async () => {
     const DBRef = await collection(DB, "Users");
@@ -70,6 +80,7 @@ const newUser = async (id, name, email, lastName, country, currency, phone ) =>{
                 banckAccount: {
                     id: ""
                 },
+                transactions: [],
                 contactList:[],
                 country: country,
                 currency: country==="US" ? "usd" : "GBP",
@@ -296,18 +307,31 @@ function updateBalance (amount) {
     )
 }
 
-function updateUserBalance (id, amount) {
+function updateUserBalance (id, amount,transID, action, email, status) {
     return (
         new Promise (async (res,rej)=> {
             const docRef = doc(DB, 'Users', id);
             const docSnap1 = await getDoc(docRef);
+            var amount2
             if (docSnap1.exists()) {
                 const user = docSnap1.data()
                 const newAmount = user.amount.amount + amount
+                if(action === "transfer"){
+                    amount2 = amount * -1
+                }else if(action === "recived"){
+                    amount2 = amount
+                }
                     await updateDoc(docRef, {
                     amount: {
                         amount: newAmount
-                    }
+                    },
+                    transactions: arrayUnion(
+                        {   id: transID,
+                            amount: amount2,
+                            action: action,
+                            status: status,
+                            userInteraction: action === "charge" || action === "withdraw" ? undefined : email,
+                        })
                 })
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
@@ -389,5 +413,6 @@ module.exports = {
     searchDestination,
     editAddress,
     stripeIDs,
-    editUserData
+    editUserData,
+    generateID
 }
