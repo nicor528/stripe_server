@@ -45,11 +45,12 @@ router.post("/chargeMoney", async (req, res) => {
     const id = req.body.id;
     const amount = req.body.amount * 100
     const userAmount = req.body.amount * 0.956
+    const date = req.body.date;
     getDataUser(id).then(user=> {
         addMoney(user.stripe.customerID, amount).then(charge=>{
             console.log(charge)
             updateBalance(userAmount).then(user => {
-                updateUserBalance(id, userAmount, charge.id, "charge", "", charge.status).then(user=>{
+                updateUserBalance(id, userAmount, charge.id, "charge", "", charge.status, date).then(user=>{
                     res.status(200).send(user)
                 })
             })
