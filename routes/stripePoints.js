@@ -61,12 +61,13 @@ router.post("/chargeMoney", async (req, res) => {
 router.post("/withdraw", async (req, res) => {
     const id = req.body.id;
     const amount = req.body.amount
-    const stripeAmount = amount * 100
+    const stripeAmount = amount * 100;
+    const date = req.body.date;
     getDataUser(id).then(user =>{
         if(user.amount.amount >= amount){
             withdraw(user.stripe.accountID, stripeAmount).then(transfer => {
                 updateBalance(-amount).then(balance => {
-                    updateUserBalance(id, -amount, transfer.id, "withdraw", "", "succeeded").then(user =>{
+                    updateUserBalance(id, -amount, transfer.id, "withdraw", "", "succeeded", date).then(user =>{
                         res.status(200).send(user)
                     })
                 })
@@ -81,14 +82,15 @@ router.post("/userTranfer", async (req, res)=> {
     const id = req.body.id;
     const amount = req.body.amount;
     const stripeAmount = amount * 100
-    const destination = req.body.destination
+    const destination = req.body.destination;
+    const date = req.body.date;
     getDataUser(id).then(async(user)=>{
         if(user.amount.amount >= amount){
             const userEmail = user.email;
             const transactionID = await generateID();
             searchDestination(destination).then(user => {
-                updateUserBalance(user.id, amount, transactionID, "recived", userEmail, "succeeded").then(user=>{
-                    updateUserBalance(id, -amount, transactionID, "transfer", destination, "succeeded").then(user=>{
+                updateUserBalance(user.id, amount, transactionID, "recived", userEmail, "succeeded", date).then(user=>{
+                    updateUserBalance(id, -amount, transactionID, "transfer", destination, "succeeded", date).then(user=>{
                         res.status(200).send(user)
                     })
                 })
