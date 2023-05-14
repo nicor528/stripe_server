@@ -11,7 +11,8 @@ const {getFirestore, collection,
     updateDoc,
     increment,
     arrayUnion,
-    setDoc} = require("firebase/firestore")
+    setDoc,
+    arrayRemove} = require("firebase/firestore")
 const {getAuth, 
     signInWithRedirect,
      GoogleAuthProvider, 
@@ -19,7 +20,6 @@ const {getAuth,
      FacebookAuthProvider, 
      TwitterAuthProvider,
      signInWithCredential } = require("firebase/auth"); 
-const { createAccount, createCustomer } = require('./apiStripe');
 
 const firebaseConfig = {
     apiKey: process.env.apiKey,
@@ -27,12 +27,16 @@ const firebaseConfig = {
     projectId: process.env.projectId,
     storageBucket: process.env.storageBucket,
     messagingSenderId: process.env.messagingSenderId,
-    appId: process.env.apiKey
+    appId: process.env.appId
 }
 
-const app = initializeApp(firebaseConfig);
-const DB = getFirestore(app);
-const auth = getAuth(app);
+const app =  initializeApp(firebaseConfig);
+const DB =  getFirestore(app);
+const auth =  getAuth(app);
+
+
+
+
 
 function generateID () {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -70,9 +74,12 @@ const newUser = async (id, name, email, lastName, country, currency, phone ) =>{
                 phone: phone,
                 lastName: lastName,
                 amount:
-                        {
-                            amount: 0
-                        },
+                        [
+                            {
+                                amount: 0,
+                                currency: country=== "US" ? "USD" : "GBP"
+                            }
+                        ],
                 idNumber: "000000000",
                 identityVerifed: false,
                 stripeAccount: false,
@@ -83,7 +90,7 @@ const newUser = async (id, name, email, lastName, country, currency, phone ) =>{
                 transactions: [],
                 contactList:[],
                 country: country,
-                currency: country==="US" ? "usd" : "GBP",
+                currency: country==="US" ? "USD" : "GBP",
                 stripeCard: {
                     
                 },
@@ -124,6 +131,7 @@ const validuser = (token) => {
     })
 }
 
+
 function getDataUser (id) {
     return (
         new Promise (async (res, rej) => {
@@ -137,7 +145,6 @@ function getDataUser (id) {
             }
         })
     )
-
 }
 
 function getStripeID (id) {
@@ -307,6 +314,107 @@ function updateBalance (amount) {
     )
 }
 
+//index_turno = turnosB.findIndex(elemento => elemento.fecha_total === validar_fechaB)
+//index_servicio = serviciosB.findIndex(elemento => elemento.id === parseInt( seleccionB))
+
+function updateUserBalance2 (id, amount, currency, transID, action, email, status, date) {
+    return (
+        new Promise (async (res,rej) => {
+            const docRef = doc(DB, 'Users', id);
+            const docSnap1 = await getDoc(docRef);
+            if (docSnap1.exists()) {
+                const user = docSnap1.data()
+                const index_ammount = await user.amount.findIndex(elemento => elemento.currency === currency)
+                if(index_ammount != -1){
+                    const newAmount2 = await user.amount[index_ammount].amount + amount
+                    await updateDoc(docRef, {
+                        amount : arrayRemove(user.amount[index_ammount])
+                    })
+                    await updateDoc(docRef, {
+                        amount: arrayUnion({
+                            currency: currency,
+                            amount : newAmount2
+                        }),
+                        transactions: arrayUnion(
+                            {   id: transID,
+                                amount: amount,
+                                currency: currency,
+                                action: action,
+                                status: status,
+                                date: date,
+                                userInteraction: action === "charge" || action === "withdraw" ? "N/A" : email,
+                            })
+                        })
+                }else{
+                    await updateDoc(docRef, {
+                        amount: arrayUnion({
+                            currency: currency,
+                            amount : amount
+                        }),
+                        transactions: arrayUnion(
+                        {   id: transID,
+                            amount: amount,
+                            currency: currency,
+                            action: action,
+                            status: status,
+                            date: date,
+                            userInteraction: action === "charge" || action === "withdraw" ? "N/A" : email,
+                        })
+                    })
+                }
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    res(docSnap.data());
+                } else {
+                  // doc.data() will be undefined in this case
+                    rej(docSnap)
+                }
+            }else {
+                  // doc.data() will be undefined in this case
+                rej(docSnap)
+            }
+        })
+    )
+}
+
+function setChangesCurrencysDB (data) {
+    return (
+        new Promise (async (res, rej) => {
+            const docRef = await doc(DB, "currencys", "changes")
+            data.map(async(changes) => {
+                await updateDoc(docRef, {
+                    changes : arrayRemove(changes)
+                })
+                await updateDoc(docRef, {
+                    changes: arrayUnion(changes)
+                })
+            })
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                res(docSnap.data());
+            } else {
+                  // doc.data() will be undefined in this case
+                rej(docSnap)
+            }
+        })
+    )
+}
+
+function getChangesCurrencys () {
+    return(
+        new Promise (async (res, rej) => {
+            const docRef = await doc(DB, "currencys", "changes")
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                res(docSnap.data());
+            } else {
+                  // doc.data() will be undefined in this case
+                rej(docSnap)
+            }
+        })
+    )
+}
+
 function updateUserBalance (id, amount,transID, action, email, status, date) {
     return (
         new Promise (async (res,rej)=> {
@@ -415,5 +523,8 @@ module.exports = {
     editAddress,
     stripeIDs,
     editUserData,
-    generateID
+    generateID,
+    updateUserBalance2,
+    setChangesCurrencysDB,
+    getChangesCurrencys
 }

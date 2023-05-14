@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {validuser, newUser, getDataUser} = require('../apiFirebase');
+const {validuser, newUser, getDataUser, getChangesCurrencys} = require('../apiFirebase');
 const { getAccount } = require('../apiStripe');
 
 router.post('/autentificarGoogleUser',async  (req, res) => {
@@ -27,14 +27,32 @@ router.post("/getUserEmailData", async (req, res) => {
       getAccount(user.stripe.accountID).then(account => {
         if(account.requirements.past_due.length == 0){
           activateWallet(req.body.id).then((user) => {
-            res.status(200).send(user)
+            getChangesCurrencys().then(currencys => {
+              const responseData = {
+                user : user,
+                currencys: currencys
+              }
+              res.status(200).send(responseData)
+            }).catch(error => {res.status(404).send(error)})
           }).catch(error =>{res.status(404).send(error)})
         }else {
-          res.status(200).send(user)
+          getChangesCurrencys().then(currencys => {
+            const responseData = {
+              user : user,
+              currencys: currencys
+            }
+            res.status(200).send(responseData)
+          }).catch(error => {res.status(404).send(error)})
         }
       }).catch(error =>{res.status(404).send(error)})
     }else {
-      res.status(200).send(user)
+      getChangesCurrencys().then(currencys => {
+        const responseData = {
+          user : user,
+          currencys: currencys
+        }
+        res.status(200).send(responseData)
+      }).catch(error => {res.status(404).send(error)})
     }
   }).catch(error =>{res.status(404).send(error)})
 })

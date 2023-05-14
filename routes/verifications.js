@@ -1,6 +1,6 @@
 const express = require('express');
 const { compareFaces } = require('../apiAmazon');
-const { getDataUser, setVerifiedTrue, stripeIDs, activateWallet } = require('../apiFirebase');
+const { getDataUser, setVerifiedTrue, stripeIDs, activateWallet, getUsers, getChangesCurrencys } = require('../apiFirebase');
 const { createAccount, createCustomer } = require('../apiStripe');
 const router = express.Router();
 
@@ -75,6 +75,21 @@ router.post("/activateWallet", async (req, res)=>{
         }
     }).catch(error => {res.status(404).send(error)})
 })*/
+
+router.post("/getCurrencys", async (req, res) => {
+    const id = req.body.id;
+    getDataUser(id).then(user => {
+        getChangesCurrencys().then(currencys => {
+            const responseData = {
+            currencys: currencys
+            }
+            res.status(200).send(responseData)
+        })
+    }).catch(error => {
+        console.log(error)
+        res.status(400).send({error: "No user found"})
+    })
+})
 
 
 

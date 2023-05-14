@@ -195,16 +195,15 @@ function getAccount (id) {
   )
 }
 
-function addMoney (id, amount) {
+function addMoney (id, amount, currency) {
   return(
     new Promise ((res,rej)=>{
       stripe.charges.create({
         amount: amount,
-        currency: 'usd',
+        currency: currency,
         customer: id,
         description: 'charge',
       }).then(charge =>{
-          console.log(charge)
           res(charge)
       }).catch(error => {
         rej(error)
@@ -231,7 +230,23 @@ function withdraw (id, amount) {
         currency: 'usd',
         destination: id,
       }).then(transfer => {
-          console.log(transfer)
+          res(transfer)
+      }).catch(error => {
+        console.log(error)
+        rej(error)
+      })
+    })
+  )
+}
+
+function withdraw2 (id, amount, currency) {
+  return(
+    new Promise ((res, rej)=> {
+      stripe.transfers.create({
+        amount: amount,
+        currency: currency,
+        destination: id,
+      }).then(transfer => {
           res(transfer)
       }).catch(error => {
         console.log(error)
@@ -252,5 +267,6 @@ module.exports = {
   getBalance,
   withdraw,
   editAccountAddress,
-  editUserDataAccount
+  editUserDataAccount,
+  withdraw2
 }
