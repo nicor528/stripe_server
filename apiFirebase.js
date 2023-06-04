@@ -77,7 +77,15 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                         [
                             {
                                 amount: 0,
-                                currency: country=== "US" ? "USD" : "GBP"
+                                currency: "GBP"
+                            },
+                            {
+                                amount: 0,
+                                currency: "USD"
+                            },
+                            {
+                                amount: 0,
+                                currency: "EUR"
                             }
                         ],
                 idNumber: "000000000",
