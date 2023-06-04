@@ -37,10 +37,48 @@ function compareFaces (image1, image2) {
       });
     })
   )
+}
 
+function compareDNI(image, dniNumber) {
+  return new Promise((resolve, reject) => {
+    const params = {
+      Image: {
+        Bytes: image,
+      },
+    };
+
+    rekognition.detectText(params, (err, data) => {
+      if (err) {
+        console.log(err, err.stack);
+        reject(err);
+      } else {
+        console.log(data);
+        const detectedTexts = data.TextDetections.filter(
+          (detection) => detection.Type === 'LINE'
+        );
+
+        const detectedDNIs = detectedTexts.map((detection) =>
+          detection.DetectedText.replace(/\./g, '')
+        );
+
+        const dniWithoutDots = dniNumber.replace(/\./g, '');
+
+        const matchedDNI = detectedDNIs.find(
+          (detectedDNI) => detectedDNI === dniWithoutDots
+        );
+
+        if (matchedDNI) {
+          resolve();
+        } else {
+          reject(new Error('DNI number does not match'));
+        }
+      }
+    });
+  });
 }
 
 module.exports = {
   compareFaces,
+  compareDNI,
 
 }

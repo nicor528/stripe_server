@@ -3,6 +3,7 @@ const stripe = require('stripe')('sk_test_51MtZkaFB53J3KRhjTwuAmH3YXskxuPUOGfEij
 async function createAccount (user) {
 
   const phone = "+" + user.phone
+  const lastFourCharacters = user.idNumber.slice(-4)
 
     return(
         new Promise ((res, rej) => {
@@ -45,8 +46,8 @@ async function createAccount (user) {
                       state: user.address.state,
                       },
                   email: user.email,
-                  phone: user.country ==="US" ? "+12027282330" : "+447712345678" ,
-                  ssn_last_4: user.country ==="US" ? "0000" : undefined
+                  phone: user.country === "US" ? "+12027282330" : "+447712345678" ,
+                  ssn_last_4: user.country === "US" ? lastFourCharacters : undefined
               }  
             }).then(acount => {
                 console.log(acount)
@@ -69,13 +70,12 @@ function editAccountAddress (id, user) {
           {
             address: {
               city: user.address.city,
-              line1: "address_full_match",
+              line1: user.addess.line1,
               postal_code: user.address.postal_code,
               state: user.address.state,
             }
           }
-
-
+          //"address_full_match"
         }
       ).then(account => {
         res(account)
@@ -130,19 +130,18 @@ function createPerson () {
     
 }
 
-function createCard ( card, id ) {
+function createCard ( number, cvc, month, year, id, currency ) {
   return(
     new Promise ((res, rej) => {
       stripe.tokens.create({
         card: {
-          number: card.number,
-          exp_month: 4,
-          exp_year: 2024,
-          cvc: card.cvc,
-          currency: "usd",
+          number: number,
+          exp_month: month,
+          exp_year: year,
+          cvc: cvc,
+          currency: currency,
         },
       }).then(cardToken => {
-          console.log(cardToken)
           stripe.customers.createSource(
               id,
               {source: cardToken.id}
@@ -150,22 +149,26 @@ function createCard ( card, id ) {
               console.log(card)
               res(card)
           })
+        }).catch(error => {
+          console.log(error)
+          rej(error)
         })
     })
   )
 }
 
-function createBanckAccount (id, name, lastName, country) {
+function createBanckAccount (id, name, lastName, country, currency, accountNumber) {
   return(
     new Promise ((res,rej) => {
       stripe.tokens.create({
         bank_account: {
           country: country,
-          currency: country === "US" ? "usd" : "GBP",
+          currency: currency,
           account_holder_name: name + lastName,
           account_holder_type: 'individual',
-          routing_number: country==="US" ?'110000000' : "200000",
-          account_number: country==="US" ? '000123456789' : "00012345",
+          //routing_number: country==="US" ?'110000000' : "200000",
+          account_number: accountNumber,
+          //country==="US" ? '000123456789' : "00012345"
         },
       }).then(token => {
           console.log(token)
@@ -175,8 +178,12 @@ function createBanckAccount (id, name, lastName, country) {
         ).then(account => {
             res(account)
         }).catch(error => {
+            console.log(error)
             rej(error)
         })
+      }).catch(error => {
+        console.log(error)
+        rej(error)
       })
     })
   )
@@ -196,16 +203,19 @@ function getAccount (id) {
 }
 
 function addMoney (id, amount, currency) {
+  
   return(
-    new Promise ((res,rej)=>{
-      stripe.charges.create({
+    new Promise (async (res,rej)=>{
+      await stripe.charges.create({
         amount: amount,
         currency: currency,
         customer: id,
         description: 'charge',
       }).then(charge =>{
+        console.log(charge)
           res(charge)
       }).catch(error => {
+        console.log(error, "?=?=?")
         rej(error)
       })
     })

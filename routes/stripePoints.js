@@ -1,6 +1,7 @@
 const express = require('express');
-const { getDataUser, addCard, setBanckAccount, activateWallet, updateBalance, updateUserBalance, searchDestination, generateID, getChangesCurrencys, updateUserBalance2 } = require('../apiFirebase');
+const { getDataUser, addCard, setBanckAccount, activateWallet, updateBalance, updateUserBalance, searchDestination, generateID, getChangesCurrencys, updateUserBalance2, setTransactionW } = require('../apiFirebase');
 const { createCard, createBanckAccount, addMoney, getBalance, withdraw, withdraw2 } = require('../apiStripe');
+const { createCode } = require('../apiTwilio');
 const router = express.Router();
 
 router.post("/createCard", async (req,res) => {
@@ -13,6 +14,27 @@ router.post("/createCard", async (req,res) => {
             }).catch(error => {console.log(error)})
         }).catch(error => {console.log(error)})
     }).catch(error => {console.log(error)})
+})
+
+router.post("/addCard", async (req, res) => {
+    const id = req.body.id;
+    const cardNumber = req.body.cardNumber;
+    const CVC = req.body.CVC;
+    const month = req.body.month;
+    const year = req.body.year;
+    getDataUser(id).then(user => {
+        createCard(cardNumber, CVC, month, year, user.stripe.customerID, user.currency).then(card => {
+            addCard(card, id).then(user => {
+                res.status(200).send(user)
+            }).catch(error => {
+                res.status(404).send("error")
+            })
+        }).catch(error => {
+            res.status(400).send(error)
+        })
+    }).catch(error => {
+        res.status(404).send("error")
+    })
 })
 
 router.post("/addBanckAccount", async (req,res) => {
@@ -41,6 +63,24 @@ router.post("/addBanckAccount", async (req,res) => {
     }).catch(error =>{res.status(404).send(error)})
 })
 
+router.post("/addBanckAccount2", async (req, res) => {
+    const id = req.body.id;
+    const accountNumber = req.body.accountNumber;
+    getDataUser(id).then(user => {
+        createBanckAccount(user.stripe.accountID, user.name, user.lastName, user.country, user.currency, accountNumber).then(account => {
+            setBanckAccount(id, account.external_accounts.data[0].id).then(user => {
+                res.status(200).send(user)
+            }).catch(error => {
+                res.status(404).send("error")
+            })
+        }).catch(error => {
+            res.status(400).send("error")
+        })
+    }).catch(error => {
+        res.status(404).send("error")
+    })
+})
+
 router.post("/chargeMoney", async (req, res) => {
     const id = req.body.id;
     const amount = req.body.amount
@@ -57,6 +97,46 @@ router.post("/chargeMoney", async (req, res) => {
                 })
             })
         })
+    })
+})
+
+router.post("/chargeMoney2", async (req, res) => {
+    const id = req.body.id;
+    const amount = req.body.amount
+    const userAmount = parseFloat(req.body.amount) * 0.956
+    const date = req.body.date;
+    const localAmount = parseFloat(req.body.localAmount);
+    const stripeAmount = localAmount * 100
+    const currency = req.body.currency
+    getDataUser(id).then(async (user) => {
+        createCode(user.phone, id).then( code => {
+            setTransactionW(id, amount, currency, date, localAmount, stripeAmount, "charge", "").then(trans => {
+                res.status(200).send(user)
+            }).catch(error => {console.log(error)})
+        }).catch(error => {console.log(error)})
+    }).catch(error => {res.status(404).send("error")})
+})
+
+router.post("/withdraw3", async (req, res) => {
+    const id = req.body.id;
+    const amount = parseFloat(req.body.amount);
+    const date = req.body.date;
+    const localAmount = parseFloat(req.body.localAmount);
+    const stripeAmount = localAmount * 100;
+    const currency = req.body.currency;
+    const action = req.body.action;
+    getDataUser(id).then(async (user)=> {
+        const index = await user.amount.findIndex(element => element.currency === currency)
+        if(amount <= user.amount[index].amount){
+            createCode(user.phone, id).then(code => {
+                setTransactionW(id, amount, currency, date, localAmount, stripeAmount, action, "").then(trans => {
+                    res.status(200).send(user)
+                })
+            })
+        }else {
+            res.status(400).send({error: "Not suficient founds"})
+        }
+
     })
 })
 
@@ -104,6 +184,40 @@ router.post("/withdraw", async (req, res) => {
     })
 })
 
+router.post("/userTransfer3", async (req, res) => {
+    const id = req.body.id;
+    const amount = parseFloat(req.body.amount);
+    const stripeAmount = amount * 100
+    const destination = req.body.destination;
+    const date = req.body.date;
+    const currency = req.body.currency;
+    const action = req.body.action;
+    getDataUser(id).then(async (user) => {
+        const phone = user.phone
+        const index = await user.amount.findIndex(element => element.currency === currency)
+        if(index === -1){
+            res.status(400).send({error: "Not suficient founds"})
+        }
+        if(amount <= user.amount[index].amount && index != -1){
+            searchDestination(destination).then(user => {
+                createCode(phone, id).then(code => {
+                    setTransactionW(id, amount, currency, date, amount, stripeAmount, action, destination).then(trans => {
+                        res.status(200).send({})
+                    })
+                })
+            }).catch(error =>{
+                if(error == 2){
+                    res.status(402).send({error: "Not"})
+                }else{
+                    res.status(401).send({error: "Not"})
+                }
+            })
+        }else{
+            res.status(400).send({error: "Not suficient founds"})
+        }
+    })
+})
+
 router.post("/userTransfer2", async (req, res) => {
     const id = req.body.id;
     const amount = parseFloat(req.body.amount);
@@ -111,6 +225,7 @@ router.post("/userTransfer2", async (req, res) => {
     const destination = req.body.destination;
     const date = req.body.date;
     const currency = req.body.currency;
+    //const action = req.body.action;
     getDataUser(id).then(async (user) => {
         const index = await user.amount.findIndex(element => element.currency === currency)
         if(index === -1){

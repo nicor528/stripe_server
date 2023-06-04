@@ -34,10 +34,6 @@ const app =  initializeApp(firebaseConfig);
 const DB =  getFirestore(app);
 const auth =  getAuth(app);
 
-
-
-
-
 function generateID () {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let code = '';
@@ -64,15 +60,19 @@ const getUsers = async () => {
     )
 }
 
-const newUser = async (id, name, email, lastName, country, currency, phone ) =>{
+const newUser = async (id, name, email, lastName, country, currency, phone, password,
+    day, month, year) =>{
 
     return(
         new Promise (async (res, rej) =>{
             await setDoc(doc(DB, "Users", id ),{
+                password: password,
                 name: name,
                 email: email,
                 phone: phone,
                 lastName: lastName,
+                phoneVerifed: true,
+                addessVerified : false,
                 amount:
                         [
                             {
@@ -90,6 +90,7 @@ const newUser = async (id, name, email, lastName, country, currency, phone ) =>{
                 transactions: [],
                 contactList:[],
                 country: country,
+                COUNTRY: country ==="US" ? "United states" : "United Kingdom",
                 currency: country==="US" ? "USD" : "GBP",
                 stripeCard: {
                     
@@ -106,9 +107,9 @@ const newUser = async (id, name, email, lastName, country, currency, phone ) =>{
                     state: country === "US" ? "NJ": "Escocia" ,
                     },
                 dob: {
-                    day: "2",
-                    month: "3",
-                    year: "1990"
+                    day: day.toString(),
+                    month: month.toString(),
+                    year: year.toString()
                     },
             })
             const docRef = await doc(DB, "Users", id)
@@ -186,12 +187,13 @@ function addCard (card, id) {
     )
 }
 
-function setVerifiedTrue (id) {
+function setVerifiedTrue (id, ID) {
     return(
         new Promise (async(res, rej)=> {
             const docRef = doc(DB, 'Users', id);
             await updateDoc(docRef, {
-                identityVerifed: true
+                identityVerifed: true,
+                idNumber : ID
             })
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
@@ -235,7 +237,8 @@ function editAddress (id, user) {
                     line1: user.line1,
                     postal_code: user.postal_code,
                     state: user.state,
-                }
+                },
+                addessVerified: true
             })
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
@@ -314,15 +317,52 @@ function updateBalance (amount) {
     )
 }
 
-//index_turno = turnosB.findIndex(elemento => elemento.fecha_total === validar_fechaB)
-//index_servicio = serviciosB.findIndex(elemento => elemento.id === parseInt( seleccionB))
+function setTransactionW (id, amount, currency, date, localAmount, stripeAmount, action, email) {
+    return(
+        new Promise (async (res, rej) => {
+            const docRef = doc(DB, 'transactions', id);
+            await setDoc(docRef, {
+                amount : amount,
+                currency : currency,
+                action : action,
+                date: date,
+                localAmount: localAmount,
+                stripeAmount : stripeAmount,
+                userInteraction: action === "charge" || action === "withdraw" ? "N/A" : email
+            })
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                res(docSnap.data());
+            } else {
+                  // doc.data() will be undefined in this case
+                rej(docSnap)
+            }
+        })
+    )
+}
+
+function getTransaction (id) {
+    return(
+        new Promise (async (res, rej) => {
+            const docRef = doc(DB, 'transactions', id);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                res(docSnap.data());
+            } else {
+                  // doc.data() will be undefined in this case
+                rej(docSnap)
+            }
+        })
+    )
+}
 
 function updateUserBalance2 (id, amount, currency, transID, action, email, status, date) {
     return (
         new Promise (async (res,rej) => {
-            const docRef = doc(DB, 'Users', id);
+            const docRef = await doc(DB, 'Users', id);
             const docSnap1 = await getDoc(docRef);
             if (docSnap1.exists()) {
+                console.log("12312312312")
                 const user = docSnap1.data()
                 const index_ammount = await user.amount.findIndex(elemento => elemento.currency === currency)
                 if(index_ammount != -1){
@@ -371,7 +411,7 @@ function updateUserBalance2 (id, amount, currency, transID, action, email, statu
                 }
             }else {
                   // doc.data() will be undefined in this case
-                rej(docSnap)
+                rej(docSnap1)
             }
         })
     )
@@ -472,7 +512,6 @@ function searchDestination (destination) {
                         rej(2)
                     }
                 })
-                console.log("test3")
                 rej ("No match")
             }).catch(error => {
                 rej(error)
@@ -507,7 +546,60 @@ function editUserData (id, user) {
     )
 }
 
+async function confirmCell (id) {
+    return(
+        new Promise (async (res,rej) => {
+            const docRef = doc(DB, 'Users', id);
+            await updateDoc(docRef, {
+                phoneVerifed: true
+            })
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                res(docSnap.data());
+            } else {
+                  // doc.data() will be undefined in this case
+                rej(docSnap)
+            }
+        })
+    )
+}
+
+function setSMSCode (id, code) {
+    return (
+        new Promise (async (res, rej) => {
+            const docRef = doc(DB, 'security', id);
+            await setDoc(docRef, {
+                smsCode : code
+            })
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                res(docSnap.data());
+            } else {
+                  // doc.data() will be undefined in this case
+                rej(docSnap)
+            }
+        })
+    )
+}
+
+function getSMSCode (id, CODE) {
+    return(
+        new Promise (async (res, rej) => {
+            const docRef = doc(DB, 'security', id);
+            const docSnap = await getDoc(docRef);
+            const code = docSnap.data()
+            console.log(code.smsCode, CODE)
+            if (code.smsCode.toString() === CODE.toString()) {
+                res(true)
+            }else{
+                rej(false)
+            }
+        })
+    )
+}
+
 module.exports = {
+    auth,
     getUsers,
     validuser,
     newUser,
@@ -526,5 +618,10 @@ module.exports = {
     generateID,
     updateUserBalance2,
     setChangesCurrencysDB,
-    getChangesCurrencys
+    getChangesCurrencys,
+    confirmCell,
+    setSMSCode,
+    setTransactionW,
+    getSMSCode,
+    getTransaction
 }
