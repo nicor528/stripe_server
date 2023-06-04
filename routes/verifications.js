@@ -161,11 +161,11 @@ router.post("/confirmCodeWithdraw", async (req, res) => {
                     updateBalance(-trans.amount).then(balance => {
                         updateUserBalance2(id, -trans.amount, trans.currency, transfer.id, trans.action, "", "success", trans.date).then(user => {
                             res.status(200).send(user)
-                        })
-                    })
-                })
-            })
-        })
+                        }).catch(error => {console.log(error), res.status(404).send("error")})
+                    }).catch(error => {console.log(error), res.status(404).send("error")})
+                }).catch(error => {console.log(error), res.status(404).send("error")})
+            }).catch(error => {console.log(error), res.status(404).send("error")})
+        }).catch(error => {console.log(error), res.status(404).send("error")})
     }).catch(error => {
         console.log(error)
         res.status(400).send({error: "bad code"})

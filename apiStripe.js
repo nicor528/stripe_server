@@ -31,7 +31,7 @@ async function createAccount (user) {
                 },*/
                 tos_acceptance: {date: 1609798905, ip: '8.8.8.8', service_agreement: user.country==="US" ? undefined : 'recipient'},
                 individual: {
-                  id_number: user.idNumber,
+                  id_number: user.country === "US" ? "123456789" : user.idNumber,
                   first_name: user.name,
                   last_name: user.lastName,
                   dob: {
@@ -47,7 +47,7 @@ async function createAccount (user) {
                       },
                   email: user.email,
                   phone: user.country === "US" ? "+12027282330" : "+447712345678" ,
-                  ssn_last_4: user.country === "US" ? lastFourCharacters : undefined
+                  ssn_last_4: user.country === "US" ? "6789" : undefined
               }  
             }).then(acount => {
                 console.log(acount)
