@@ -180,12 +180,16 @@ router.post("/confirmChargeCode", async (req, res) => {
         console.log("test0")
         getDataUser(id).then(user => {
             console.log("test1")
-            getTransaction(id).then(trans => {
+            getTransaction(id).then(async (trans) => {
                 console.log(trans)
+                let userAmount = await parseInt(trans.amount) * 0.956
+                userAmount = await userAmount.toFixed(2)
+                console.log(userAmount)
+                const stripeAmount = await trans.stripeAmount.toFixed(0)
                 console.log("test2")
-                addMoney(user.stripe.customerID, trans.stripeAmount.toFixed(0), user.currency).then(charge => {
+                addMoney(user.stripe.customerID, stripeAmount, user.currency).then(charge => {
                     console.log("test3??????")
-                    updateUserBalance2(id, parseInt(trans.amount) * 0.956, trans.currency, charge.id, "charge", "", charge.status, trans.date).then(user => {
+                    updateUserBalance2(id, userAmount, trans.currency, charge.id, "charge", "", charge.status, trans.date).then(user => {
                         console.log("test4")
                         res.status(200).send(user)
                     }).catch(error => {console.log(error, "?=?=?=?=?=?"), res.status(404).send("error")})

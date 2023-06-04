@@ -166,7 +166,7 @@ function createBanckAccount (id, name, lastName, country, currency, accountNumbe
           currency: currency,
           account_holder_name: name + lastName,
           account_holder_type: 'individual',
-          //routing_number: country==="US" ?'110000000' : "200000",
+          routing_number: country==="US" ? '110000000' : "200000",
           account_number: accountNumber,
           //country==="US" ? '000123456789' : "00012345"
         },

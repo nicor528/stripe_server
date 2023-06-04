@@ -320,7 +320,7 @@ function updateBalance (amount) {
 function setTransactionW (id, amount, currency, date, localAmount, stripeAmount, action, email) {
     return(
         new Promise (async (res, rej) => {
-            const docRef = doc(DB, 'transactions', id);
+            const docRef = await doc(DB, 'transactions', id);
             await setDoc(docRef, {
                 amount : amount,
                 currency : currency,
