@@ -2,7 +2,7 @@ const twilio = require('twilio');
 const { setSMSCode } = require('./apiFirebase');
 
 const accountSid = 'ACf0a8deab1ddad940a0b81912e50a5064';
-const authToken = 'e3bb3366b73edf64944ed3f741b9988d';
+const authToken = 'e0004923d0eea0e53aee09ac391635f6';
 const client = twilio(accountSid, authToken);
 
 function createCode (phone, id) {
