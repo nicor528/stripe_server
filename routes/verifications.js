@@ -207,7 +207,8 @@ router.post("/confirmCodeTransfer", async (req, res) => {
         getDataUser(id).then(user => {
             getTransaction(id).then(trans => {
                 const email = user.email
-                updateUserBalance2(id, -trans.amount, trans.currency, transactionID, "transfer", trans.userInteraction, "succeeded", trans.date).then(USER => {
+                const amount = trans.amount * -1
+                updateUserBalance2(id, amount, trans.currency, transactionID, "transfer", trans.userInteraction, "succeeded", trans.date).then(USER => {
                     searchDestination(trans.userInteraction).then(user => {
                         updateUserBalance2(user.id, trans.amount, trans.currency, transactionID, "recived", email, "succeeded", trans.date).then( data => {
                             res.status(200).send(USER)

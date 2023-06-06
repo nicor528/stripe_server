@@ -374,7 +374,7 @@ function updateUserBalance2 (id, amount, currency, transID, action, email, statu
                 const user = docSnap1.data()
                 const index_ammount = await user.amount.findIndex(elemento => elemento.currency === currency)
                 if(index_ammount != -1){
-                    const newAmount2 = await user.amount[index_ammount].amount + parseFloat(amount)
+                    const newAmount2 = await parseFloat(user.amount[index_ammount].amount) + parseFloat(amount)
                     await updateDoc(docRef, {
                         amount : arrayRemove(user.amount[index_ammount])
                     })
