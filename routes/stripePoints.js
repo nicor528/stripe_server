@@ -102,7 +102,7 @@ router.post("/chargeMoney", async (req, res) => {
 
 router.post("/chargeMoney2", async (req, res) => {
     const id = req.body.id;
-    const amount = req.body.amount
+    const amount = parseFloat(req.body.amount) * 1
     const userAmount = parseFloat(req.body.amount) * 0.956
     const date = req.body.date;
     const localAmount = parseFloat(req.body.localAmount);
