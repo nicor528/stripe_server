@@ -381,7 +381,7 @@ function updateUserBalance2 (id, amount, currency, transID, action, email, statu
                     await updateDoc(docRef, {
                         amount: arrayUnion({
                             currency: currency,
-                            amount : parseFloat(newAmount2) 
+                            amount : parseFloat(newAmount2).toFixed(2) 
                         }),
                         transactions: arrayUnion(
                             {   id: transID,
@@ -397,7 +397,7 @@ function updateUserBalance2 (id, amount, currency, transID, action, email, statu
                     await updateDoc(docRef, {
                         amount: arrayUnion({
                             currency: currency,
-                            amount : amount
+                            amount : parseFloat(amount).toFixed(2) 
                         }),
                         transactions: arrayUnion(
                         {   id: transID,
