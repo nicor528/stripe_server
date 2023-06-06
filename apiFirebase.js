@@ -381,7 +381,7 @@ function updateUserBalance2 (id, amount, currency, transID, action, email, statu
                     await updateDoc(docRef, {
                         amount: arrayUnion({
                             currency: currency,
-                            amount : parseFloat(newAmount2).toFixed(2) 
+                            amount : parseFloat(newAmount2)
                         }),
                         transactions: arrayUnion(
                             {   id: transID,
@@ -397,7 +397,7 @@ function updateUserBalance2 (id, amount, currency, transID, action, email, statu
                     await updateDoc(docRef, {
                         amount: arrayUnion({
                             currency: currency,
-                            amount : parseFloat(amount).toFixed(2) 
+                            amount : parseFloat(amount)
                         }),
                         transactions: arrayUnion(
                         {   id: transID,
@@ -412,6 +412,7 @@ function updateUserBalance2 (id, amount, currency, transID, action, email, statu
                 }
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
+                    console.log(docSnap.data())
                     res(docSnap.data());
                 } else {
                   // doc.data() will be undefined in this case
