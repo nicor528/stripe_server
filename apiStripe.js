@@ -254,7 +254,7 @@ function withdraw2 (id, amount, currency) {
     new Promise ((res, rej)=> {
       stripe.transfers.create({
         amount: amount,
-        currency: currency,
+        currency: "USD",
         destination: id,
       }).then(transfer => {
           res(transfer)
