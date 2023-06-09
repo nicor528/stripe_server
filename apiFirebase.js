@@ -260,7 +260,8 @@ function editAddress (id, user) {
     )
 }
 
-async function setBanckAccount(userID, id) {
+async function setBanckAccount(userID, id, number) {
+    const last4 = await number.slice(-4)
     return(
         new Promise (async (res, rej) =>{
             const docRef = doc(DB, 'Users', userID);
@@ -268,6 +269,7 @@ async function setBanckAccount(userID, id) {
                 banckAccount: 
                 {   
                     id: id,
+                    last4: last4
                 }
             })
             const docSnap = await getDoc(docRef);
