@@ -1,6 +1,6 @@
 //import { initializeApp } from "firebase/app";
 require('dotenv').config();
-const {initializeApp} = require("firebase/app")
+const {initializeApp} = require("firebase/app");
 const {
     getFirestore, 
     collection,
@@ -14,7 +14,7 @@ const {
     increment,
     arrayUnion,
     setDoc,
-    arrayRemove} = require("firebase/firestore")
+    arrayRemove} = require("firebase/firestore");
 const {
     getAuth, 
     signInWithRedirect,
@@ -102,7 +102,7 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                 contactList:[],
                 country: country,
                 COUNTRY: country === process.env.defaultCountry ? "United states" : "United Kingdom",
-                currency: country==="US" ? "USD" : "GBP",
+                currency: country=== process.env.defaultCountry ? "USD" : "GBP",
                 stripeCard: {
                     
                 },

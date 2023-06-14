@@ -1,7 +1,25 @@
 const express = require('express');
 const { compareFaces, compareDNI } = require('../apiAmazon');
-const { getDataUser, setVerifiedTrue, stripeIDs, activateWallet, getUsers, getChangesCurrencys, confirmCell, getSMSCode, getTransaction, updateBalance, updateUserBalance2, generateID, searchDestination, editAddress } = require('../apiFirebase');
-const { createAccount, createCustomer, withdraw2, addMoney } = require('../apiStripe');
+const { 
+    getDataUser, 
+    setVerifiedTrue, 
+    stripeIDs, 
+    activateWallet, 
+    getUsers, 
+    getChangesCurrencys, 
+    confirmCell, 
+    getSMSCode, 
+    getTransaction, 
+    updateBalance, 
+    updateUserBalance2, 
+    generateID, 
+    searchDestination, 
+    editAddress } = require('../apiFirebase');
+const { 
+    createAccount, 
+    createCustomer, 
+    withdraw2, 
+    addMoney } = require('../apiStripe');
 const { verifyAddress } = require('../apiAddress');
 const { createCode } = require('../apiTwilio');
 const router = express.Router();
