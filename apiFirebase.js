@@ -18,11 +18,11 @@ const {
 const {
     getAuth, 
     signInWithRedirect,
-     GoogleAuthProvider, 
-     signInWithPopup, 
-     FacebookAuthProvider, 
-     TwitterAuthProvider,
-     signInWithCredential } = require("firebase/auth"); 
+    GoogleAuthProvider, 
+    signInWithPopup, 
+    FacebookAuthProvider, 
+    TwitterAuthProvider,
+    signInWithCredential } = require("firebase/auth"); 
 
 const firebaseConfig = {
     apiKey: process.env.apiKey,
@@ -30,7 +30,8 @@ const firebaseConfig = {
     projectId: process.env.projectId,
     storageBucket: process.env.storageBucket,
     messagingSenderId: process.env.messagingSenderId,
-    appId: process.env.appId
+    appId: process.env.appId,
+    measurementId: process.env.measurementId
 }
 
 const app =  initializeApp(firebaseConfig);
@@ -138,10 +139,29 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
 const validuser = (token) => {
     const credential = GoogleAuthProvider.credential(token);
     signInWithCredential(auth, credential).then(result => {
-        console.log(result)
-    })
-}
+        console.log(result);
+    }).catch(error => {
+        console.log(error);
+    });
+};
 
+const validuser1 = (token) => {
+    const credential = FacebookAuthProvider.credential(token);
+    signInWithCredential(auth, credential).then(result => {
+        console.log(result);
+    }).catch(error => {
+        console.log(error);
+    });
+};
+
+const validuser2 = (token) => {
+    const credential = TwitterAuthProvider.credential(token);
+    signInWithCredential(auth, credential).then(result => {
+        console.log(result);
+    }).catch(error => {
+        console.log(error);
+    });
+};
 
 function getDataUser (id) {
     return (
