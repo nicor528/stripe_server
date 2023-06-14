@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
-
-const apiKey = '3e3435e6-c37a-45a5-a69b-e9f736f43f61';
-const authToken = "bjYAf7rpNHzIg3aZwWbw"
+require('dotenv').config();
+const apiKey = process.env.ADDR_APIKEY;
+const authToken = process.env.ADDR_AUTHTOKEN;
 
 function verifyAddress(address, country) {
   return new Promise((res, rej) => {

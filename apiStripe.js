@@ -1,4 +1,5 @@
-const stripe = require('stripe')('sk_test_51MtZkaFB53J3KRhjTwuAmH3YXskxuPUOGfEijzED8POeec98XSkmfQEtYAk1Qz4By099ACfxvMY8lP2EnM6ws8IY00iNIiO20d');
+require('dotenv').config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 async function createAccount (user) {
 
@@ -29,9 +30,9 @@ async function createAccount (user) {
                   phone: "+12027282330",
                   tax_id: "123456789"
                 },*/
-                tos_acceptance: {date: 1609798905, ip: '8.8.8.8', service_agreement: user.country==="US" ? undefined : 'recipient'},
+                tos_acceptance: {date: 1609798905, ip: process.env.IP_ADDR , service_agreement: user.country=== process.env.defaultCountry ? undefined : 'recipient'},
                 individual: {
-                  id_number: user.country === "US" ? "123456789" : user.idNumber,
+                  id_number: user.country === process.env.defaultCountry ? "123456789" : user.idNumber,
                   first_name: user.name,
                   last_name: user.lastName,
                   dob: {
@@ -46,8 +47,8 @@ async function createAccount (user) {
                       state: user.address.state,
                       },
                   email: user.email,
-                  phone: user.country === "US" ? "+12027282330" : "+447712345678" ,
-                  ssn_last_4: user.country === "US" ? "6789" : undefined
+                  phone: user.country === process.env.defaultCountry ? "+12027282330" : "+447712345678" ,
+                  ssn_last_4: user.country === process.env.defaultCountry ? "6789" : undefined
               }  
             }).then(acount => {
                 console.log(acount)
@@ -166,7 +167,7 @@ function createBanckAccount (id, name, lastName, country, currency, accountNumbe
           currency: currency,
           account_holder_name: name + lastName,
           account_holder_type: 'individual',
-          routing_number: country==="US" ? '110000000' : "200000",
+          routing_number: country === process.env.defaultCountry ? '110000000' : "200000",
           account_number: accountNumber,
           //country==="US" ? '000123456789' : "00012345"
         },
@@ -205,13 +206,13 @@ function getAccount (id) {
 function addMoney (id, amount, currency) {
   
   return(
-    new Promise (async (res,rej)=>{
+    new Promise (async (res, rej)=>{
       await stripe.charges.create({
         amount: amount,
         currency: currency,
         customer: id,
         description: 'charge',
-      }).then(charge =>{
+      }).then(charge => {
         console.log(charge)
           res(charge)
       }).catch(error => {

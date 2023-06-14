@@ -71,8 +71,8 @@ app.post("/test",async  (req, res) => {
     }
     
 })
-app.get("/", (req, res) => {
-  res.status(StatusCodes.OK).send("API Running");
+app.get("/", async (req, res) => {
+  res.status(200).send("API Running");
 })
 const PORT = process.env.PORT || 4242;
 app.listen(PORT, () => console.log("server up en", PORT));

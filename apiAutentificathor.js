@@ -14,8 +14,6 @@ function newVinculation (name, lastName) {
 }
 
 
-
 module.exports = {
     newVinculation,
-
 }

@@ -1,13 +1,14 @@
 require('dotenv').config();
-const {getAuth, 
-        signInWithRedirect,
-        GoogleAuthProvider, 
-        signInWithPopup, 
-        FacebookAuthProvider, 
-        TwitterAuthProvider,
-        signInWithCredential, 
-        signInWithEmailAndPassword,
-        createUserWithEmailAndPassword
+const {
+    getAuth, 
+    signInWithRedirect,
+    GoogleAuthProvider, 
+    signInWithPopup, 
+    FacebookAuthProvider, 
+    TwitterAuthProvider,
+    signInWithCredential, 
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword
 } = require("firebase/auth"); 
 const { auth } = require("./apiFirebase");
 

@@ -1,7 +1,9 @@
 //import { initializeApp } from "firebase/app";
 require('dotenv').config();
 const {initializeApp} = require("firebase/app")
-const {getFirestore, collection,
+const {
+    getFirestore, 
+    collection,
     getDocs,
     doc,
     getDoc,
@@ -13,7 +15,8 @@ const {getFirestore, collection,
     arrayUnion,
     setDoc,
     arrayRemove} = require("firebase/firestore")
-const {getAuth, 
+const {
+    getAuth, 
     signInWithRedirect,
      GoogleAuthProvider, 
      signInWithPopup, 
@@ -60,8 +63,7 @@ const getUsers = async () => {
     )
 }
 
-const newUser = async (id, name, email, lastName, country, currency, phone, password,
-    day, month, year) =>{
+const newUser = async (id, name, email, lastName, country, currency, phone, password, day, month, year) =>{
 
     return(
         new Promise (async (res, rej) =>{
@@ -98,7 +100,7 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                 transactions: [],
                 contactList:[],
                 country: country,
-                COUNTRY: country ==="US" ? "United states" : "United Kingdom",
+                COUNTRY: country === process.env.defaultCountry ? "United states" : "United Kingdom",
                 currency: country==="US" ? "USD" : "GBP",
                 stripeCard: {
                     
@@ -109,10 +111,10 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                 },
                 id: id,
                 address: {
-                    city: country === "US" ? "Millville" : "Aberdeen" ,
-                    line1: country === "US" ? "2375 Pennsylvania Avenue": "289 Westburn Rd" ,
-                    postal_code: country === "US" ? "08332" : "AB10 " ,
-                    state: country === "US" ? "NJ": "Escocia" ,
+                    city: country === process.env.defaultCountry ? "Millville" : "Aberdeen" ,
+                    line1: country === process.env.defaultCountry ? "2375 Pennsylvania Avenue": "289 Westburn Rd" ,
+                    postal_code: country === process.env.defaultCountry ? "08332" : "AB10 " ,
+                    state: country === process.env.defaultCountry ? "NJ": "Escocia" ,
                     },
                 dob: {
                     day: day.toString(),
@@ -179,7 +181,8 @@ function addCard (card, id) {
             const docRef = doc(DB, 'Users', id);
             await updateDoc(docRef, {
                 cards: arrayUnion(
-                {   id: card.id,
+                {  
+                    id: card.id,
                     brand: card.brand,
                     last4: card.last4
                 })

@@ -1,6 +1,23 @@
 const express = require('express');
-const { getDataUser, addCard, setBanckAccount, activateWallet, updateBalance, updateUserBalance, searchDestination, generateID, getChangesCurrencys, updateUserBalance2, setTransactionW } = require('../apiFirebase');
-const { createCard, createBanckAccount, addMoney, getBalance, withdraw, withdraw2 } = require('../apiStripe');
+const { 
+    getDataUser, 
+    addCard, 
+    setBanckAccount, 
+    activateWallet, 
+    updateBalance, 
+    updateUserBalance, 
+    searchDestination, 
+    generateID, 
+    getChangesCurrencys, 
+    updateUserBalance2, 
+    setTransactionW } = require('../apiFirebase');
+const { 
+    createCard, 
+    createBanckAccount, 
+    addMoney, 
+    getBalance, 
+    withdraw, 
+    withdraw2 } = require('../apiStripe');
 const { createCode } = require('../apiTwilio');
 const router = express.Router();
 
