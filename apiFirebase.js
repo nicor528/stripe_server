@@ -64,7 +64,7 @@ const getUsers = async () => {
     )
 }
 
-const newUser = async (id, name, email, lastName, country, currency, phone, password, day, month, year) =>{
+const newUser = async (id, name, email, lastName, country, currency, phone, password, day, month, year, userRole, isActivate, isBlocked) =>{
 
     return(
         new Promise (async (res, rej) =>{
@@ -75,7 +75,7 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                 phone: phone,
                 lastName: lastName,
                 phoneVerifed: true,
-                addessVerified : false,
+                addressVerified : false,
                 amount:
                         [
                             {
@@ -122,6 +122,10 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                     month: month.toString(),
                     year: year.toString()
                     },
+                role: userRole, // admin : 0, user : 1
+                activate : isActivate,
+                blocked : isBlocked,
+
             })
             const docRef = await doc(DB, "Users", id)
             const docSnap = await getDoc(docRef);

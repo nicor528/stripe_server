@@ -2,6 +2,7 @@ const express = require('express');
 const stripe = require('stripe')('sk_test_51MtZkaFB53J3KRhjTwuAmH3YXskxuPUOGfEijzED8POeec98XSkmfQEtYAk1Qz4By099ACfxvMY8lP2EnM6ws8IY00iNIiO20d');
 const SingIn = require("./routes/singIn");
 const Verify = require("./routes/verifications")
+const Admin = require("./routes/admin")
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const stripePoints = require ("./routes/stripePoints");
@@ -46,6 +47,7 @@ app.use(SingIn)
 app.use(Verify)
 app.use(stripePoints)
 app.use(Edits)
+app.use(Admin)
 /*
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -71,8 +73,10 @@ app.post("/test",async  (req, res) => {
     }
     
 })
+
 app.get("/", async (req, res) => {
   res.status(200).send("API Running");
 })
+
 const PORT = process.env.PORT || 4242;
 app.listen(PORT, () => console.log("server up en", PORT));

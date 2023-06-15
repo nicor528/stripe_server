@@ -128,7 +128,7 @@ router.post("/SingUp", async (req, res) => {
   console.log(user)
   CreateEmailUser(email, password).then(User => {
     newUser(User.uid, user.name, email, user.lastName, user.country, user.currency, user.phone,
-       user.password, user.day, user.month, user.year).then(user =>{
+       user.password, user.day, user.month, user.year, 1, 1, 0).then(user =>{
       res.status(200).send(user)
     }).catch(error => {
       res.status(400).send(error)
