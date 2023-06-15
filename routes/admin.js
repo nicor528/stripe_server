@@ -50,9 +50,28 @@ router.post('/createUser', async (req, res) => {
 });
 
 router.post('/getUsers', async (req, res) => {
+    getUsers().then(data => {
+      res.status(200).send(data);
+      console.log("Ok!");
+    }).catch(error => {
+      res.status(400).send(error)
+    });
+});
 
-})
-
+router.post('/getUserData', async (req, res) => {
+  const id = req.body.id;
+    getDataUser(id).then(user => {
+        // getChangesCurrencys().then(currencys => {
+        //     const responseData = {
+        //     currencys: currencys
+        //     }
+            res.status(200).send(user)
+        // })
+    }).catch(error => {
+        console.log(error)
+        res.status(400).send({error: "No user found"})
+    })
+});
 
 
 module.exports = router;
