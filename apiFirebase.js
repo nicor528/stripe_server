@@ -14,7 +14,9 @@ const {
     increment,
     arrayUnion,
     setDoc,
-    arrayRemove} = require("firebase/firestore");
+    arrayRemove,
+    deleteDoc
+    } = require("firebase/firestore");
 const {
     getAuth, 
     signInWithRedirect,
@@ -314,6 +316,89 @@ function editAddress (id, user) {
 //     )
 // }
 
+async function resetPassword(id, password){
+    return(
+        new Promise(async(res,rej)=>{
+            const docRef = await doc(DB, 'Users', id);
+            await updateDoc(docRef, {
+                password : password
+            })
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                res(docSnap.data());
+            } else {
+                rej(docSnap)
+            }
+
+        })
+    )
+}
+
+async function updateActivate(id, isActivate){
+    return(
+        new Promise(async(res,rej)=>{
+            const docRef = await doc(DB, 'Users', id);
+            await updateDoc(docRef, {
+                activate : isActivate
+            })
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                res(docSnap.data());
+            } else {
+                rej(docSnap)
+            }
+        })
+    )
+}
+
+async function updateBlock(id, isBlocked){
+    return(
+        new Promise(async(res,rej)=>{
+            const docRef = await doc(DB, 'Users', id);
+            await updateDoc(docRef, {
+                blocked : isBlocked
+            })
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                res(docSnap.data());
+            } else {
+                rej(docSnap)
+            }
+        })
+    )
+}
+
+async function getTotalMoney(){
+    return(
+        new Promise (async (res,rej) => {
+            const docRef = doc(DB, 'TotalMoney', "Total")
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const Money = (docSnap.data());
+                    res(Money);
+            } else {
+                  // doc.data() will be undefined in this case
+                rej(docSnap)
+            }
+        })
+    )
+}
+
+async function deleteUser(id){
+    return(
+        new Promise(async(res,rej)=>{
+            const docRef = await doc(DB, 'Users', id);
+            await deleteDoc(docRef).then(() => {
+                console.log("User successfully deleted!");
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+        })
+    )
+}
+
+
 async function setBanckAccount(userID, id, number) {
     const last4 = await number.slice(-4)
     return(
@@ -354,6 +439,8 @@ async function activateWallet (id) {
         })
     )
 }
+
+
 
 function updateBalance (amount) {
     return(
@@ -419,6 +506,8 @@ function getTransaction (id) {
         })
     )
 }
+
+
 
 function updateUserBalance2 (id, amount, currency, transID, action, email, status, date) {
     return (
@@ -667,6 +756,8 @@ module.exports = {
     auth,
     getUsers,
     validuser,
+    validuser1,
+    validuser2,
     newUser,
     getDataUser,
     getStripeID,
@@ -688,5 +779,10 @@ module.exports = {
     setSMSCode,
     setTransactionW,
     getSMSCode,
-    getTransaction
+    getTransaction,
+    resetPassword,
+    updateActivate,
+    updateBlock,
+    getTotalMoney,
+    deleteUser
 }

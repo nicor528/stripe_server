@@ -1,3 +1,6 @@
+require('dotenv').config();
+const bcrypt = require('bcrypt');
+const { sign, decode } = require('jsonwebtoken');
 const express = require('express');
 const { compareFaces, compareDNI } = require('../apiAmazon');
 const { 
@@ -17,7 +20,12 @@ const {
     generateID, 
     searchDestination, 
     editAddress,
-    editUserData } = require('../apiFirebase');
+    editUserData,
+    resetPassword,
+    updateActivate,
+    updateBlock,
+    getTotalMoney,
+    deleteUser } = require('../apiFirebase');
    
 const { 
     createAccount, 
@@ -63,6 +71,7 @@ router.post('/getUserData', async (req, res) => {
   const id = req.body.id;
     getDataUser(id).then(user => {
             res.status(200).send(user)
+            console.log("Ok!");
     }).catch(error => {
         console.log(error)
         res.status(400).send({error: "No user found"})
@@ -76,9 +85,10 @@ router.post('/editUserAddress', async (req, res) => {
     console.log(address);
     editAddress(id, address).then(data => {
             res.status(200).send(data)
+            console.log("Ok!");
     }).catch(error => {
         console.log(error)
-        res.status(400).send({error: "No user found"})
+        res.status(400).send(error)
     })
 });
 
@@ -89,58 +99,85 @@ router.post('/editUserData', async (req, res) => {
   console.log(user);
   editUserData(id, user).then(data => {
           res.status(200).send(data)
+          console.log("Ok!");
   }).catch(error => {
       console.log(error)
-      res.status(400).send({error: "No user found"})
+      res.status(400).send(error)
   })
 });
 
 router.post('/deleteUser', async (req, res) => {
   const id = req.body.id;
-  
   console.log(id);
-  // editAddress(id, address).then(data => {
-  //         res.status(200).send(data)
-  // }).catch(error => {
-  //     console.log(error)
-  //     res.status(400).send({error: "No user found"})
-  // })
+  deleteUser(id).then(data => {
+          res.status(200).send(data)
+  }).catch(error => {
+      console.log(error)
+      res.status(400).send({error: "No user found"})
+  })
 });
 
 
 router.post('/resetPassword', async (req, res) => {
   const id = req.body.id;
   const password = req.body.password;
+  if (!password) {res.status(400).send({error: "No Passowrd found"});return false;}
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hashSync(password, salt);
   console.log(id);
-  resetPassword(id, password).then(data => {
+  console.log(hash);
+  resetPassword(id, hash).then(data => {
           res.status(200).send(data)
+          console.log("Ok!");
   }).catch(error => {
       console.log(error)
-      res.status(400).send({error: "No user found"})
+      res.status(400).send(error)
   })
-  
 });
 
 router.post('/updateActivate', async (req, res) => {
   const id = req.body.id;
   const isActivate = req.body.isActivate;
   console.log(id);
-  
+  updateActivate(id, isActivate).then(data => {
+    res.status(200).send(data)
+    console.log("Ok!");
+    }).catch(error => {
+       console.log(error)
+       res.status(400).send(error)
+  })
 });
 
-router.post('/updateBlock', async (req, res) => {
+router.post('/updateBlock', async (req, res) => {  
   const id = req.body.id;
-  const email = req.body.email;
-  const name = req.body.name;
-  const phone = req.body.phone;
   const isBlocked = req.body.isBlocked;
   console.log(id);
-  
+  updateBlock(id, isBlocked).then(data => {
+    res.status(200).send(data)
+    console.log("Ok!");
+    }).catch(error => {
+       console.log(error)
+       res.status(400).send(error)
+  })
 });
 
-router.post('/getTransData', async (req, res) => {
+router.post('/getTransaction', async (req, res) => {
+  const id = req.body.tid;
+  getTransaction(id).then(data => {
+    res.status(200).send(data);
+    console.log("Ok!");
+  }).catch(error => {
+    res.status(400).send(error)
+  })
+});
 
-
+router.post('/getTotalMoney', async (req, res) => {
+  getTotalMoney().then(data => {
+    res.status(200).send(data);
+    console.log("Ok!");
+  }).catch(error => {
+    res.status(400).send(error)
+  });
 });
 
 router.post('/reportBlock', async (req, res) => {
