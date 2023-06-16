@@ -16,7 +16,8 @@ const {
     updateUserBalance2, 
     generateID, 
     searchDestination, 
-    editAddress } = require('../apiFirebase');
+    editAddress,
+    editUserData } = require('../apiFirebase');
    
 const { 
     createAccount, 
@@ -61,16 +62,95 @@ router.post('/getUsers', async (req, res) => {
 router.post('/getUserData', async (req, res) => {
   const id = req.body.id;
     getDataUser(id).then(user => {
-        // getChangesCurrencys().then(currencys => {
-        //     const responseData = {
-        //     currencys: currencys
-        //     }
             res.status(200).send(user)
-        // })
     }).catch(error => {
         console.log(error)
         res.status(400).send({error: "No user found"})
     })
+});
+
+router.post('/editUserAddress', async (req, res) => {
+    const id = req.body.id;
+    const address = req.body;
+    console.log(id);
+    console.log(address);
+    editAddress(id, address).then(data => {
+            res.status(200).send(data)
+    }).catch(error => {
+        console.log(error)
+        res.status(400).send({error: "No user found"})
+    })
+});
+
+router.post('/editUserData', async (req, res) => {
+  const id = req.body.id;
+  const user = req.body;
+  console.log(id);
+  console.log(user);
+  editUserData(id, user).then(data => {
+          res.status(200).send(data)
+  }).catch(error => {
+      console.log(error)
+      res.status(400).send({error: "No user found"})
+  })
+});
+
+router.post('/deleteUser', async (req, res) => {
+  const id = req.body.id;
+  
+  console.log(id);
+  // editAddress(id, address).then(data => {
+  //         res.status(200).send(data)
+  // }).catch(error => {
+  //     console.log(error)
+  //     res.status(400).send({error: "No user found"})
+  // })
+});
+
+
+router.post('/resetPassword', async (req, res) => {
+  const id = req.body.id;
+  const password = req.body.password;
+  console.log(id);
+  resetPassword(id, password).then(data => {
+          res.status(200).send(data)
+  }).catch(error => {
+      console.log(error)
+      res.status(400).send({error: "No user found"})
+  })
+  
+});
+
+router.post('/updateActivate', async (req, res) => {
+  const id = req.body.id;
+  const isActivate = req.body.isActivate;
+  console.log(id);
+  
+});
+
+router.post('/updateBlock', async (req, res) => {
+  const id = req.body.id;
+  const email = req.body.email;
+  const name = req.body.name;
+  const phone = req.body.phone;
+  const isBlocked = req.body.isBlocked;
+  console.log(id);
+  
+});
+
+router.post('/getTransData', async (req, res) => {
+
+
+});
+
+router.post('/reportBlock', async (req, res) => {
+
+  
+});
+
+router.post('/refund', async (req, res) => {
+
+  
 });
 
 

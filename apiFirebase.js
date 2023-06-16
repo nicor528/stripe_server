@@ -287,6 +287,33 @@ function editAddress (id, user) {
     )
 }
 
+// function editUserData (id, user) {
+//     return(
+//         new Promise(async(res,rej)=>{
+//             const docRef = await doc(DB, 'Users', id);
+//             await updateDoc(docRef, {
+//                 country : user.country,
+//                 dob : {
+//                     day : user.day,
+//                     month : user.month,
+//                     year : user.year
+//                 },
+//                 name : user.name,
+//                 lastName : user.lastName,
+//                 phone : user.phone,
+//             })
+//             const docSnap = await getDoc(docRef);
+//             if (docSnap.exists()) {
+//                 res(docSnap.data());
+//             } else {
+//               // doc.data() will be undefined in this case
+//                 rej(docSnap)
+//             }
+
+//         })
+//     )
+// }
+
 async function setBanckAccount(userID, id, number) {
     const last4 = await number.slice(-4)
     return(
