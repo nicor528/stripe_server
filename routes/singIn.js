@@ -73,9 +73,17 @@ router.post("/SingIn", async (req, res) => {
   SingInPass(email, password).then(user => {
     getDataUser(user.auth.config.apiKey).then(user => {
       getChangesCurrencys().then(currencys => {
+        const auth = "";
+        if(user.email === process.env.ROOT_USER){
+          auth = "root";
+        }
+        else{
+          auth = "user";
+        }
         const responseData = {
           user : user,
-          currencys: currencys
+          currencys: currencys,
+          role : auth
         }
         res.status(200).send(responseData)
       }).catch(error => {res.status(404).send(error)})

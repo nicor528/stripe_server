@@ -18,6 +18,9 @@ function SingInPass (email, password) {
         new Promise (async (res,rej) => {
             signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
                 const user = userCredential.user
+                // if(email === process.env.ROOT_USER){
+
+                // }
                 console.log(user)
                 res(user)
             }).catch(error => {
@@ -42,6 +45,19 @@ function CreateEmailUser (email, password) {
         })
     )
 }
+
+// async (email) => {
+//     return(
+//         new Promise (async (res, rej) => {
+//             if(email === process.env.ROOT_USER){
+//                 res.send("ROOT");
+//             }
+//             else {
+//                 rej(error);
+//             }
+//         })
+//     )
+// }
 
 
 module.exports = {

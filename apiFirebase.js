@@ -388,12 +388,20 @@ async function deleteUser(id){
     return(
         new Promise(async(res,rej)=>{
             const docRef = await doc(DB, 'Users', id);
-            await deleteDoc(docRef).then(() => {
-                console.log("User successfully deleted!");
-              })
-              .catch((error) => {
-                console.error(error);
-              });
+            
+                await deleteDoc(docRef).then(() => {
+                    console.log("User successfully deleted!");
+                  })
+                  .catch((error) => {
+                    console.error(error);
+                  });
+                  const docSnap = await getDoc(docRef);
+                  if (docSnap.exists()) {
+                      res(docSnap.data());
+                  } else {
+                        // doc.data() will be undefined in this case
+                      rej(docSnap)
+                  }
         })
     )
 }

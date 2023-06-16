@@ -180,15 +180,15 @@ router.post('/getTotalMoney', async (req, res) => {
   });
 });
 
-router.post('/reportBlock', async (req, res) => {
+// router.post('/reportBlock', async (req, res) => {
 
   
-});
+// });
 
-router.post('/refund', async (req, res) => {
+// router.post('/refund', async (req, res) => {
 
   
-});
+// });
 
 
 module.exports = router;
