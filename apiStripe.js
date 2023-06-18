@@ -1,4 +1,4 @@
-const stripe = require('stripe')('sk_test_51MtZkaFB53J3KRhjTwuAmH3YXskxuPUOGfEijzED8POeec98XSkmfQEtYAk1Qz4By099ACfxvMY8lP2EnM6ws8IY00iNIiO20d');
+const stripe = require('stripe')('sk_test_51Mw8wICFdNdDtHaqAfhvsf759sCiqPaOhbNuzjC1FU87zh99FWIIArHOBp8J2iQZxoozY9xJ3k6ouAx85NpzqwFL00QZ5G3b5Q');
 
 async function createAccount (user) {
 
@@ -237,7 +237,7 @@ function withdraw (id, amount) {
     new Promise ((res, rej)=> {
       stripe.transfers.create({
         amount: amount,
-        currency: 'usd',
+        currency: 'GBP',
         destination: id,
       }).then(transfer => {
           res(transfer)
@@ -254,10 +254,57 @@ function withdraw2 (id, amount, currency) {
     new Promise ((res, rej)=> {
       stripe.transfers.create({
         amount: amount,
-        currency: "USD",
+        currency: "GBP",
         destination: id,
       }).then(transfer => {
           res(transfer)
+      }).catch(error => {
+        console.log(error)
+        rej(error)
+      })
+    })
+  )
+}
+
+function createCardHolder (user) {
+  return(
+    new Promise(async (res, rej) => {
+      stripe.issuing.cardholders.create({
+        type: "individual",
+        name: user.name + user.lastName,
+        billing: {
+          address: {
+            line1 : user.address.line1,
+            city: user.address.city,
+            country: user.country,
+            postal_code: user.address.postal_code
+          }
+        }
+      }).then(cardHolder => {
+        res(cardHolder)
+      }).catch(error => {
+        console.log(error)
+        rej(error)
+      })
+    })
+  )
+}
+
+function createCreditCard (holderId, user) {
+  return (
+    new Promise (async (res, rej) => {
+      stripe.issuing.cards.create({
+        cardholder: holderId,
+        currency: user.currency,
+        type: "virtual",
+        spending_controls: {
+          spending_limits: [{
+            amount: 10000,
+            interval: "monthly"
+          }]
+        }
+      }).then(card => {
+        res(card)
       }).catch(error => {
         console.log(error)
         rej(error)
@@ -278,5 +325,7 @@ module.exports = {
   withdraw,
   editAccountAddress,
   editUserDataAccount,
-  withdraw2
+  withdraw2,
+  createCardHolder,
+  createCreditCard
 }

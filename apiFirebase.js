@@ -100,9 +100,7 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                 country: country,
                 COUNTRY: country ==="US" ? "United states" : "United Kingdom",
                 currency: country==="US" ? "USD" : "GBP",
-                stripeCard: {
-                    
-                },
+                stripeCard: [],
                 stripe: {
                     accountID: "",
                     customerID: "",
@@ -609,6 +607,54 @@ function getSMSCode (id, CODE) {
     )
 }
 
+function createCreditCardRequest (user) {
+    return new Promise (async (res, rej) => {
+        const docRef = await doc(DB, "request", "pending", "requests", user.id);
+        const docRef2 = await doc(DB, "Users", user.id)
+        await setDoc(docRef, {
+            id : user.id,
+            user: {
+                name : user.name,
+                lastName : user.lastName,
+                email : user.email,
+            },
+            request : "Credit Card",
+            state: "pending"
+        })
+        await updateDoc(docRef2, {
+            stripeCard : arrayUnion(
+                {id : "in revision"}
+            )
+        })
+        const docSnap = await getDoc(docRef2);
+        if (docSnap.exists()) {
+            res(docSnap.data());
+        } else {
+              // doc.data() will be undefined in this case
+            rej(docSnap)
+        }
+    })
+}
+
+function setStripeCard (card, id) {
+    return(
+        new Promise (async (res, rej) => {
+            const docRef = await doc(DB, "Users", id);
+            await updateDoc(docRef, {
+                stripeCard : arrayRemove({id : "in revision"})
+            })
+            await updateDoc(docRef, {
+                stripeCard : arrayUnion({
+                    id : card.id,
+                    last4 : card.last4,
+                    exp_month: card.exp_month,
+                    exp_year: card.exp_year,
+                })
+            })
+        })
+    )
+}
+
 module.exports = {
     auth,
     getUsers,
@@ -634,5 +680,7 @@ module.exports = {
     setSMSCode,
     setTransactionW,
     getSMSCode,
-    getTransaction
+    getTransaction,
+    createCreditCardRequest,
+    setStripeCard
 }
