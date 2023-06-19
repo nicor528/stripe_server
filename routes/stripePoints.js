@@ -1,6 +1,6 @@
 const express = require('express');
-const { getDataUser, addCard, setBanckAccount, activateWallet, updateBalance, updateUserBalance, searchDestination, generateID, getChangesCurrencys, updateUserBalance2, setTransactionW, createCreditCardRequest } = require('../apiFirebase');
-const { createCard, createBanckAccount, addMoney, getBalance, withdraw, withdraw2, createCardHolder, createCreditCard } = require('../apiStripe');
+const { getDataUser, addCard, setBanckAccount, activateWallet, updateBalance, updateUserBalance, searchDestination, generateID, getChangesCurrencys, updateUserBalance2, setTransactionW, createCreditCardRequest, setStripeCard, closeCardRequest } = require('../apiFirebase');
+const { createCard, createBanckAccount, addMoney, getBalance, withdraw, withdraw2, createCardHolder, createCreditCard, updateIssuingAccount, createPerson, addIssuingBalance } = require('../apiStripe');
 const { createCode } = require('../apiTwilio');
 const router = express.Router();
 
@@ -285,9 +285,8 @@ router.post("/userTranfer", async (req, res)=> {
 })
 
 router.post("/creditCardRequest", async (req,res) => {
-    const id = req.body.id
     getDataUser(id).then(user => {
-        createCreditCardRequest(user).then(user => {
+        createCreditCardRequest(user, "credit card", "N/A", "N/A").then(user => {
             res.status(200).send(user)
         }).catch(error => {res.status(404).send({error: "Not"})})
     }).catch(error => {res.status(404).send({error: "Not"})})
@@ -298,10 +297,25 @@ router.post("/confirmCreditCard", async (req, res) => {
     getDataUser(id).then(user => {
         createCardHolder(user).then(holder => {
             createCreditCard(holder.id, user).then(card => {
-                setStripeCard(card, id)
-            }).catch(error => {res.status(404).send({error: "Not"})})
-        }).catch(error => {res.status(404).send({error: "Not"})})
-    }).catch(error => {res.status(404).send({error: "Not"})})
+                setStripeCard(card, id).then(user => {
+                    closeCardRequest(user, "apoved", card.id, "Ok").then(requestClosed => {
+                        res.status(200).send(user)
+                    }).catch(error => {console.log(error), res.status(403).send({error: "Not"})})
+                }).catch(error => {console.log(error), res.status(403).send({error: "Not"})})
+            }).catch(error => {console.log(error), res.status(403).send({error: "Not"})})
+        }).catch(error => {console.log(error),res.status(400).send({error: "Not"})})
+    }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
+})
+
+router.post("/cancelCardRequest", async (req, res) => {
+    const cardId = req.body.cardId;
+    const id = req.body.id;
+    const reason = req.body.reason;
+    getDataUser(id).then(user => {
+        createCreditCardRequest(user, "cancel card", reason, cardId).then(user => {
+
+        }).catch(error => {console.log(error),res.status(404).send({error: "Not"})})
+    }).catch(error => {console.log(error),res.status(404).send({error: "Not"})})
 })
 
 

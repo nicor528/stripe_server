@@ -12,6 +12,7 @@ async function createAccount (user) {
                 country: user.country,
                 capabilities: {
                   transfers: {requested: true},
+                  card_payments: user.country === "US" ?  {requested: true} : undefined
                 },
                 business_type: "individual",
                 business_profile: {
@@ -29,7 +30,7 @@ async function createAccount (user) {
                   phone: "+12027282330",
                   tax_id: "123456789"
                 },*/
-                tos_acceptance: {date: 1609798905, ip: '8.8.8.8', service_agreement: user.country==="US" ? undefined : 'recipient'},
+                tos_acceptance: {date: 1609798905, ip: '8.8.8.8', service_agreement: user.country==="GB" ? undefined : user.country === "US" ? undefined : 'recipient'},
                 individual: {
                   id_number: user.country === "US" ? "123456789" : user.idNumber,
                   first_name: user.name,
@@ -124,10 +125,6 @@ function createCustomer (name, lastName, email, phone) {
       })
     })
   )
-}
-
-function createPerson () {
-    
 }
 
 function createCard ( number, cvc, month, year, id, currency ) {
@@ -271,7 +268,18 @@ function createCardHolder (user) {
     new Promise(async (res, rej) => {
       stripe.issuing.cardholders.create({
         type: "individual",
-        name: user.name + user.lastName,
+        individual: {
+          first_name: user.name,
+          last_name: user.lastName,
+          card_issuing: {
+            user_terms_acceptance: {
+              date: 1470266163,
+              ip: "91.121.146.224"
+            }
+          }
+        },
+        name: user.name + " " + user.lastName,
+        phone_number: user.phone,
         billing: {
           address: {
             line1 : user.address.line1,
@@ -281,6 +289,7 @@ function createCardHolder (user) {
           }
         }
       }).then(cardHolder => {
+        console.log(cardHolder)
         res(cardHolder)
       }).catch(error => {
         console.log(error)
@@ -297,14 +306,90 @@ function createCreditCard (holderId, user) {
         cardholder: holderId,
         currency: user.currency,
         type: "virtual",
+        status: "active",
         spending_controls: {
           spending_limits: [{
-            amount: 10000,
+            amount: 1000000,
             interval: "monthly"
           }]
         }
       }).then(card => {
+        console.log(card)
+        //console.log(card.requirements.past_due)
         res(card)
+      }).catch(error => {
+        console.log(error)
+        rej(error)
+      })
+    })
+  )
+}
+
+function updateIssuingAccount (id) {
+  return(
+    new Promise (async (res, rej) => {
+      stripe.accounts.update(
+        id,
+        {
+          capabilities: {
+            card_issuing: {
+              requested: true,
+            }
+          }
+        }
+      ).then(acccount => {
+        console.log(acccount)
+        res(acccount)
+      }).catch(error => {
+        console.log(error)
+        rej(error)
+      })
+    })
+  )
+}
+
+function createPerson (id, user) {
+    return(
+      new Promise (async (res, rej) => {
+        stripe.accounts.createPerson(
+          id,
+          {
+            first_name: user.name,
+            last_name: user.lastName,
+            dob: {
+              day: user.dob.day,
+              month: user.dob.month,
+              year: user.dob.year,
+            },
+            address: {
+              line1 : user.address.line1,
+              city: user.address.city,
+              country: user.country,
+              postal_code: user.address.postal_code
+            },
+            id_number: user.idNumber,
+            email: user.email,
+          }
+        ).then(person => {
+          res(person)
+        }).catch(error => {
+          console.log(error)
+          rej(error)
+        })
+      })
+    )
+}
+
+function addIssuingBalance (id) {
+  return(
+    new Promise ((res, rej)=> {
+      stripe.transfers.create({
+        amount: 1000000,
+        currency: "GBP",
+        destination: id,
+        destination_balance: "issuing"
+      }).then(transfer => {
+          res(transfer)
       }).catch(error => {
         console.log(error)
         rej(error)
@@ -327,5 +412,8 @@ module.exports = {
   editUserDataAccount,
   withdraw2,
   createCardHolder,
-  createCreditCard
+  createCreditCard,
+  updateIssuingAccount,
+  createPerson,
+  addIssuingBalance
 }

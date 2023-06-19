@@ -12,7 +12,8 @@ const {getFirestore, collection,
     increment,
     arrayUnion,
     setDoc,
-    arrayRemove} = require("firebase/firestore")
+    arrayRemove,
+    deleteDoc} = require("firebase/firestore")
 const {getAuth, 
     signInWithRedirect,
      GoogleAuthProvider, 
@@ -69,7 +70,7 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                 password: password,
                 name: name,
                 email: email,
-                phone: phone,
+                phone: "+" + phone,
                 lastName: lastName,
                 phoneVerifed: true,
                 addessVerified : false,
@@ -607,7 +608,7 @@ function getSMSCode (id, CODE) {
     )
 }
 
-function createCreditCardRequest (user) {
+function createCreditCardRequest (user, request, reason, cardId) {
     return new Promise (async (res, rej) => {
         const docRef = await doc(DB, "request", "pending", "requests", user.id);
         const docRef2 = await doc(DB, "Users", user.id)
@@ -618,8 +619,10 @@ function createCreditCardRequest (user) {
                 lastName : user.lastName,
                 email : user.email,
             },
-            request : "Credit Card",
-            state: "pending"
+            request : request,
+            state: "pending",
+            reason: reason,
+            cardId: cardId
         })
         await updateDoc(docRef2, {
             stripeCard : arrayUnion(
@@ -634,6 +637,29 @@ function createCreditCardRequest (user) {
             rej(docSnap)
         }
     })
+}
+
+function closeCardRequest (user, state, cardId, reason) {
+    return (
+        new Promise (async (res, rej) => {
+            const id = await generateID();
+            const docRef = await doc(DB, "request", "pending", "requests", user.id);
+            const docRefClosed = await doc(DB, "request", "closed", "requests", id)
+            const docRef2 = await doc(DB, "Users", user.id);
+            await updateDoc(docRef, {
+                state: state,
+                reason: reason,
+                cardId: cardId
+            })
+            const docSnapRequest = await getDoc(docRef);
+            const data = docSnapRequest.data()
+            await deleteDoc(docRef);
+            await setDoc(docRefClosed, {
+                data
+            })
+            res()
+        })
+    )
 }
 
 function setStripeCard (card, id) {
@@ -651,6 +677,13 @@ function setStripeCard (card, id) {
                     exp_year: card.exp_year,
                 })
             })
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                res(docSnap.data());
+            } else {
+                // doc.data() will be undefined in this case
+                rej(docSnap)
+            }
         })
     )
 }
@@ -682,5 +715,6 @@ module.exports = {
     getSMSCode,
     getTransaction,
     createCreditCardRequest,
-    setStripeCard
+    setStripeCard,
+    closeCardRequest
 }
