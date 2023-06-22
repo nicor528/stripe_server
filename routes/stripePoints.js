@@ -298,7 +298,7 @@ router.post("/confirmCreditCard", async (req, res) => {
         createCardHolder(user).then(holder => {
             createCreditCard(holder.id, user).then(card => {
                 setStripeCard(card, id).then(user => {
-                    closeCardRequest(user, "apoved", card.id, "Ok").then(requestClosed => {
+                    closeCardRequest(user, "aproved", card.id, "Ok").then(requestClosed => {
                         res.status(200).send(user)
                     }).catch(error => {console.log(error), res.status(403).send({error: "Not"})})
                 }).catch(error => {console.log(error), res.status(403).send({error: "Not"})})
@@ -314,7 +314,20 @@ router.post("/cancelCardRequest", async (req, res) => {
     getDataUser(id).then(user => {
         createCreditCardRequest(user, "cancel card", reason, cardId).then(user => {
             setCardInCancelationProcces(id, cardId).then(user => {
-                res.status(200).send(user)
+                res.status(200).send(user);
+            }).catch(error => {console.log(error),res.status(404).send({error: "Not"})})
+        }).catch(error => {console.log(error),res.status(404).send({error: "Not"})})
+    }).catch(error => {console.log(error),res.status(404).send({error: "Not"})})
+})
+
+router.post("/confirmCancelCardRequest", async (req, res) => {
+    const id = req.body.id;
+    getDataUser(id).then(user => {
+        cancelCreditCard(user.stripeCard.id).then(card => {
+            closeCardRequest(user, "aproved", card.id, 0).then(request => {
+                setStripeCardCancel(id).then(user => {
+                    res.status(200).send(user);
+                }).catch(error => {console.log(error),res.status(404).send({error: "Not"})})
             }).catch(error => {console.log(error),res.status(404).send({error: "Not"})})
         }).catch(error => {console.log(error),res.status(404).send({error: "Not"})})
     }).catch(error => {console.log(error),res.status(404).send({error: "Not"})})

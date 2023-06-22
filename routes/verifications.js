@@ -41,7 +41,6 @@ router.post("/confirmAddress", async (req, res)=>{
             }).catch(error =>{res.status(404).send(error)})
         }).catch(error =>{res.status(404).send(error)})
     }).catch(error =>{res.status(404).send(error)})
-
 })
 
 router.post("/confirmPhone", async (req, res) => {

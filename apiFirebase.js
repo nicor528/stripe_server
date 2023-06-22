@@ -371,7 +371,6 @@ function updateUserBalance2 (id, amount, currency, transID, action, email, statu
             const docRef = await doc(DB, 'Users', id);
             const docSnap1 = await getDoc(docRef);
             if (docSnap1.exists()) {
-                console.log("12312312312")
                 const user = docSnap1.data()
                 const index_ammount = await user.amount.findIndex(elemento => elemento.currency === currency)
                 if(index_ammount != -1){
@@ -646,9 +645,10 @@ function closeCardRequest (user, state, cardId, reason) {
             const docRef = await doc(DB, "request", "pending", "requests", user.id);
             const docRefClosed = await doc(DB, "request", "closed", "requests", id)
             const docRef2 = await doc(DB, "Users", user.id);
+            const request = await getDoc(docRef);
             await updateDoc(docRef, {
                 state: state,
-                reason: reason,
+                reason: reason === 0 ? request.reason : reason,
                 cardId: cardId
             })
             const docSnapRequest = await getDoc(docRef);
@@ -688,6 +688,70 @@ function setStripeCard (card, id) {
     )
 }
 
+function setCardInCancelationProcces (id, cardId) {
+    return(
+        new Promise (async (res, rej) => {
+            const docRef = await doc(DB, "Users", id);
+            const docSnap1 = await getDoc(docRef);
+            if (docSnap1.exists()) {
+                const user = docSnap1.data();
+                await updateDoc(docRef, {
+                    stripeCard : arrayRemove(user.stripeCard[0])
+                })
+                await updateDoc(docRef, {
+                    stripeCard: arrayUnion({
+                        id : "In cancelation revision",
+                        last4 : user.stripeCard[0].last4,
+                        exp_month: user.stripeCard[0].exp_month,
+                        exp_year: user.stripeCard[0].exp_year,
+                    })
+                })
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    res(docSnap.data());
+                } else {
+                    // doc.data() will be undefined in this case
+                    rej(docSnap)
+                }
+            }else {
+                rej(docSnap1)
+            }
+        })
+    )
+}
+
+function setStripeCardCancel (id) {
+    return(
+        new Promise (async (res, rej) => {
+            const docRef = await doc(DB, "Users", id);
+            const docSnap1 = await getDoc(docRef);
+            if (docSnap1.exists()) {
+                const user = docSnap1.data();
+                await updateDoc(docRef, {
+                    stripeCard : arrayRemove(user.stripeCard[0])
+                })
+                await updateDoc(docRef, {
+                    stripeCard: arrayUnion({
+                        id : "Cancelated",
+                        last4 : user.stripeCard[0].last4,
+                        exp_month: user.stripeCard[0].exp_month,
+                        exp_year: user.stripeCard[0].exp_year,
+                    })
+                })
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    res(docSnap.data());
+                } else {
+                    // doc.data() will be undefined in this case
+                    rej(docSnap)
+                }
+            }else {
+                rej(docSnap1)
+            }
+        })
+    )
+}
+
 module.exports = {
     auth,
     getUsers,
@@ -716,5 +780,7 @@ module.exports = {
     getTransaction,
     createCreditCardRequest,
     setStripeCard,
-    closeCardRequest
+    closeCardRequest,
+    setCardInCancelationProcces,
+    setStripeCardCancel
 }
