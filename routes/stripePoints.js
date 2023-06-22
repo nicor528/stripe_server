@@ -313,7 +313,9 @@ router.post("/cancelCardRequest", async (req, res) => {
     const reason = req.body.reason;
     getDataUser(id).then(user => {
         createCreditCardRequest(user, "cancel card", reason, cardId).then(user => {
-
+            setCardInCancelationProcces(id, cardId).then(user => {
+                res.status(200).send(user)
+            }).catch(error => {console.log(error),res.status(404).send({error: "Not"})})
         }).catch(error => {console.log(error),res.status(404).send({error: "Not"})})
     }).catch(error => {console.log(error),res.status(404).send({error: "Not"})})
 })
