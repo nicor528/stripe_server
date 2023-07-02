@@ -104,13 +104,17 @@ router.post("/chargeMoney2", async (req, res) => {
     const id = req.body.id;
     const amount = parseFloat(req.body.amount) * 1
     const userAmount = parseFloat(req.body.amount) * 0.956
-    const date = req.body.date;
+    //const date = req.body.date;
+    const date = new Date();
+    const localDay = await localDate.getDate();
+    const localMonth = await localDate.getMonth() + 1; 
+    const localYear = await localDate.getFullYear();
     const localAmount = parseFloat(req.body.localAmount);
     const stripeAmount = localAmount * 100
     const currency = req.body.currency
     getDataUser(id).then(async (user) => {
         createCode(user.phone, id).then( code => {
-            setTransactionW(id, amount, currency, date, localAmount, stripeAmount, "charge", "").then(trans => {
+            setTransactionW(id, amount, currency, date, localAmount, stripeAmount, "charge", "", localDay, localMonth, localYear).then(trans => {
                 res.status(200).send(user)
             }).catch(error => {console.log(error)})
         }).catch(error => {console.log(error)})
@@ -120,7 +124,11 @@ router.post("/chargeMoney2", async (req, res) => {
 router.post("/withdraw3", async (req, res) => {
     const id = req.body.id;
     const amount = parseFloat(req.body.amount);
-    const date = req.body.date;
+    //const date = req.body.date;
+    const date = new Date();
+    const localDay = await localDate.getDate();
+    const localMonth = await localDate.getMonth() + 1; 
+    const localYear = await localDate.getFullYear();
     const localAmount = parseFloat(req.body.localAmount);
     const stripeAmount = amount * 100;
     const currency = req.body.currency;
@@ -129,7 +137,7 @@ router.post("/withdraw3", async (req, res) => {
         const index = await user.amount.findIndex(element => element.currency === currency)
         if(amount <= user.amount[index].amount){
             createCode(user.phone, id).then(code => {
-                setTransactionW(id, amount, currency, date, localAmount, stripeAmount, action, "").then(trans => {
+                setTransactionW(id, amount, currency, date, localAmount, stripeAmount, action, "", localDay, localMonth, localYear).then(trans => {
                     res.status(200).send(user)
                 })
             })
@@ -189,7 +197,11 @@ router.post("/userTransfer3", async (req, res) => {
     const amount = parseFloat(req.body.amount);
     const stripeAmount = amount * 100
     const destination = req.body.destination;
-    const date = req.body.date;
+    //const date = req.body.date;
+    const date = new Date();
+    const localDay = await localDate.getDate();
+    const localMonth = await localDate.getMonth() + 1; 
+    const localYear = await localDate.getFullYear();
     const currency = req.body.currency;
     const action = req.body.action;
     getDataUser(id).then(async (user) => {
@@ -201,7 +213,7 @@ router.post("/userTransfer3", async (req, res) => {
         if(amount <= user.amount[index].amount && index != -1){
             searchDestination(destination).then(user => {
                 createCode(phone, id).then(code => {
-                    setTransactionW(id, amount, currency, date, amount, stripeAmount, action, destination).then(trans => {
+                    setTransactionW(id, amount, currency, date, amount, stripeAmount, action, destination, localDay, localMonth, localYear).then(trans => {
                         res.status(200).send({})
                     })
                 })

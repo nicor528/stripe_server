@@ -5,6 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const stripePoints = require ("./routes/stripePoints");
 const Edits = require("./routes/editPoints");
+const admin = require("./routes/admin");
 
 
 const app = express()
@@ -38,6 +39,7 @@ app.use(SingIn)
 app.use(Verify)
 app.use(stripePoints)
 app.use(Edits)
+app.use(admin)
 
 const PORT = process.env.PORT || 4242;
 app.listen(PORT, () => console.log("server up en", PORT));
