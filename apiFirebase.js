@@ -96,16 +96,80 @@ const getUsers = async () => {
                         usersDic = usersDic + 1
                     }
                 })
+                let usersActive = 0; let usersInactive = 0; let usersUnverified = 0;
+                await users.map(user => {
+                    if(!user.identityVerifed){
+                        usersUnverified = usersUnverified + 1;
+                    }
+                    if(user.stripeAccount){
+                        usersActive = usersActive + 1;
+                    }
+                    if(!user.stripeAccount){
+                        usersInactive = usersInactive + 1;
+                    }
+                })
                 console.log(users[0])
                 const data = {
                     users : users,
                     usersXmonth : [usersJan, usersFeb, usersMar, usersAbr, usersMay,
-                    usersJun, usersJul, usersAgu, usersSep, usersOct, usersNov, usersDic]
+                    usersJun, usersJul, usersAgu, usersSep, usersOct, usersNov, usersDic],
+                    usersActive: usersActive,
+                    usersInactive: usersInactive,
+                    usersUnverified: usersUnverified
                 }
                 res(data)
             }).catch(error => {
                 rej(error)
             })
+        })
+    )
+}
+
+const setReportsUserData = async (users) => {
+    return(
+        new Promise(async (res, rej) => {
+            let usersActive = 0; let usersInactive = 0; let usersUnverified = 0;
+            await users.map(user => {
+                if(!user.identityVerifed){
+                    usersUnverified = usersUnverified + 1;
+                }
+                if(user.stripeAccount){
+                    usersActive = usersActive + 1;
+                }
+                if(!user.stripeAccount){
+                    usersInactive = usersInactive + 1;
+                }
+            })
+
+        })
+    )
+}
+
+const getTransactionAdmin = async (id) => {
+    return(
+        new Promise (async (res, rej) => {
+            const DBRef = await collection (DB, "Users");
+            getDocs(DBRef).then(async (snapshot) => {
+                const users = await snapshot.docs.map( users => {
+                    return {user: users.data()}
+                })
+                const transactions = await Promise.all(
+                    users.map(async user => {
+                      if (user.user.transactions && user.user.transactions.length > 0) {
+                        return (
+                          user.user.transactions
+                        );
+                      }
+                    })
+                );
+                const flattenedTransactions = transactions.filter(Boolean).flat();
+                const transaction = flattenedTransactions.map(transaction => {
+                    if(transaction.id === id){
+                        return(transaction)
+                    }
+                })
+                res(transaction)
+            }).catch(error => {rej(error)})
         })
     )
 }
@@ -199,10 +263,10 @@ const getTransactions = async () => {
                 }
                 console.log(data)
                 res(data);
+            }).catch(error => {
+                console.log(error)
+                rej(error);
             })
-        }).catch(error => {
-            console.log(error);
-            rej(error);
         })
     )
 }
@@ -216,7 +280,7 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
             let localDay = await localDate.getDate();
             let localMonth = await localDate.getMonth() + 1; 
             let localYear = await localDate.getFullYear();
-            localDate = await dia + '/' + mes + '/' + año;
+            localDate = await localDay + '/' + localMonth + '/' + localYear;
             await setDoc(doc(DB, "Users", id ),{
                 singUpDate: {
                     day: localDay,
@@ -246,7 +310,7 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                             }
                         ],
                 idNumber: "000000000",
-                identityVerifed: false,
+                identityVerified: false,
                 stripeAccount: false,
                 cards: [],
                 banckAccount: {
@@ -355,7 +419,7 @@ function setVerifiedTrue (id, ID) {
         new Promise (async(res, rej)=> {
             const docRef = doc(DB, 'Users', id);
             await updateDoc(docRef, {
-                identityVerifed: true,
+                identityVerified: true,
                 idNumber : ID
             })
             const docSnap = await getDoc(docRef);
@@ -946,5 +1010,7 @@ module.exports = {
     closeCardRequest,
     setCardInCancelationProcces,
     setStripeCardCancel,
-    getTransactions
+    getTransactions,
+    setReportsUserData,
+    getTransactionAdmin
 }

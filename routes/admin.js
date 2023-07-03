@@ -24,7 +24,9 @@ const {
     updateBlock,
     getTotalMoney,
     deleteUser, 
-    getTransactions} = require('../apiFirebase');
+    getTransactions,
+    setReportsUserData,
+    getTransactionAdmin} = require('../apiFirebase');
    
 const { 
     createAccount, 
@@ -60,6 +62,35 @@ router.post('/createUser', async (req, res) => {
 router.post("/getDashData", async (req, res) => {
     getUsers().then(data => {
         res.status(200).send(data)
+    }).catch(error => {
+        console.log(error)
+        res.status(400).send(error)
+    })
+})
+
+router.post("/getTransaction", async (req, res) => {
+    const id = req.body.id
+    getTransactionAdmin(id).then(transaction => {
+        res.status(200).send(transaction)
+    }).catch(error => {
+        console.log(error)
+        res.status(400).send(error)
+    })
+})
+
+router.post("/getDataUser", async (req, res) => {
+    const id = req.body.id;
+    getDataUser(id).then(user => {
+        res.status(200).send(user)
+    }).catch(error => {
+        console.log(error)
+        res.status(400).send(error)
+    })
+})
+
+router.post("/getReportsData", async (req, res) => {
+    getUsers().then(users => {
+        
     }).catch(error => {
         console.log(error)
         res.status(400).send(error)
