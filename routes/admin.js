@@ -26,7 +26,8 @@ const {
     deleteUser, 
     getTransactions,
     setReportsUserData,
-    getTransactionAdmin} = require('../apiFirebase');
+    getTransactionAdmin,
+    getCardRequests} = require('../apiFirebase');
    
 const { 
     createAccount, 
@@ -58,6 +59,12 @@ router.post('/createUser', async (req, res) => {
       }
     })
 });
+
+router.post("/getCardRequests", async (req, res) => {
+    getCardRequests().then(data => {
+        res.status(200).send(data)
+    }).catch(error => {res.status(401).send(error)})
+})
 
 router.post("/getDashData", async (req, res) => {
     getUsers().then(data => {

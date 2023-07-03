@@ -22,6 +22,7 @@ const {getAuth,
      TwitterAuthProvider,
      signInWithCredential } = require("firebase/auth"); 
 const { UserContextImpl } = require('twilio/lib/rest/conversations/v1/user');
+const { request } = require('express');
 
 const firebaseConfig = {
     apiKey: process.env.apiKey,
@@ -44,6 +45,32 @@ function generateID () {
           code += characters[randomIndex];
         }
         return code;
+}
+
+function getCardRequests () {
+    return(
+        new Promise (async (res, rej) => {
+            const pendigRef = collection(DB, "request", "pending", "requests")
+            const closedRef = collection(DB, "request", "closed", "requests")
+            getDocs(pendigRef).then(async (snapshot) => {
+                const pendingRequests = snapshot.docs.map(request => {
+                    const request2 = request.data()
+                    return request2
+                })
+                getDocs(closedRef).then(async (snapshot) => {
+                    const closedRequests = snapshot.docs.map(request => {
+                        const request2 = request.data()
+                        return request2
+                    })
+                    const data = [...pendingRequests, ...closedRequests]
+                    const data2 = await closedRequests.concat(pendingRequests)
+                    console.log(pendingRequests)
+                    res(pendingRequests)
+                })
+            }).catch(error => {rej(error)})
+            
+        })
+    )
 }
 
 const getUsers = async () => {
@@ -1012,5 +1039,6 @@ module.exports = {
     setStripeCardCancel,
     getTransactions,
     setReportsUserData,
-    getTransactionAdmin
+    getTransactionAdmin,
+    getCardRequests
 }
