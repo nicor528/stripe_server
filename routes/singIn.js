@@ -81,7 +81,8 @@ router.post("/SingIn2", async (req, res) => {
   const email = req.body.email;
   SingInPass(email, password).then(user => {
     getDataUser(user.uid).then(user => {
-      if(!user.stripeAccount && Object.keys(user.stripe.accountID).length < 1 && user.phoneVerifed && user.identityVerifed && user.addessVerified){
+      if(!user.stripeAccount && Object.keys(user.stripe.accountID).length < 1 && user.phoneVerified && user.identityVerified && user.addressVerified){
+        console.log("test1")
         createAccount(user).then(account => {
           createCustomer(user.name, user.lastName, user.email, user.phone).then(customerID => {
             stripeIDs(user.id, account.id, customerID).then(user => {
@@ -98,6 +99,7 @@ router.post("/SingIn2", async (req, res) => {
           }).catch(error => {res.status(404).send(error)})
         }).catch(error => {res.status(404).send(error)})
       }else {
+        console.log("test3")
         getChangesCurrencys().then(currencys => {
           const responseData = {
             user : user,

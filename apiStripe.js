@@ -71,7 +71,7 @@ function editAccountAddress (id, user) {
           {
             address: {
               city: user.address.city,
-              line1: user.addess.line1,
+              line1: user.address.line1,
               postal_code: user.address.postal_code,
               state: user.address.state,
             }

@@ -87,7 +87,7 @@ router.post("/activateWallet", async (req, res)=>{
 /*router.post("/activateWallet", async(req,res)=>{
     const id = req.body.id
     getDataUser(id).then(user=>{
-        if(user.identityVerifed){
+        if(user.identityVerified){
             if(user.stripe.accountID.length < 1 && user.stripe.customerID.length < 1){
                 createAccount(user).then(account=>{
                     createCustomer(user.name, user.lastName, user.email, user.phone).then(customerID =>{
@@ -116,7 +116,7 @@ router.post("/activateWallet", async (req, res)=>{
             }
         }else{
             const error = {
-                error: "Verifed your Identity"
+                error: "Verified your Identity"
             }
             res.status(404).send(JSON.stringify(error))
         }

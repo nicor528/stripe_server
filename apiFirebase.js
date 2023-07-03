@@ -98,7 +98,7 @@ const getUsers = async () => {
                 })
                 let usersActive = 0; let usersInactive = 0; let usersUnverified = 0;
                 await users.map(user => {
-                    if(!user.identityVerifed){
+                    if(!user.identityVerified){
                         usersUnverified = usersUnverified + 1;
                     }
                     if(user.stripeAccount){
@@ -130,7 +130,7 @@ const setReportsUserData = async (users) => {
         new Promise(async (res, rej) => {
             let usersActive = 0; let usersInactive = 0; let usersUnverified = 0;
             await users.map(user => {
-                if(!user.identityVerifed){
+                if(!user.identityVerified){
                     usersUnverified = usersUnverified + 1;
                 }
                 if(user.stripeAccount){
@@ -292,8 +292,8 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                 email: email,
                 phone: "+" + phone,
                 lastName: lastName,
-                phoneVerifed: true,
-                addessVerified : false,
+                phoneVerified: true,
+                addressVerified : false,
                 amount:
                         [
                             {
@@ -465,7 +465,7 @@ function editAddress (id, user) {
                     postal_code: user.postal_code,
                     state: user.state,
                 },
-                addessVerified: true
+                addressVerified: true
             })
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
@@ -787,7 +787,7 @@ async function confirmCell (id) {
         new Promise (async (res,rej) => {
             const docRef = doc(DB, 'Users', id);
             await updateDoc(docRef, {
-                phoneVerifed: true
+                phoneVerified: true
             })
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
