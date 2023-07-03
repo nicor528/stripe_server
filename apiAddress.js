@@ -20,6 +20,7 @@ function verifyAddress(address, country) {
         console.log(data)
         console.log(data[0].analysis.verification_status)
         console.log(data[0].analysis.changes)
+        res("Ok, need to pay the API")
         if (data[0].analysis.verification_status === 'Ambiguous') {
           res('La dirección está válida y bien escrita.');
         } 
