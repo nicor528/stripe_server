@@ -506,17 +506,20 @@ function editAddress (id, user) {
     )
 }
 
-async function setBanckAccount(userID, id, number) {
+async function setBanckAccount(userID, id, number, routing) {
     const last4 = await number.slice(-4)
     return(
         new Promise (async (res, rej) =>{
             const docRef = doc(DB, 'Users', userID);
             await updateDoc(docRef, {
-                banckAccount: 
-                {   
-                    id: id,
-                    last4: last4
-                }
+                banckAccount: arrayUnion(
+                    {   
+                        id: id,
+                        last4: last4,
+                        number: number,
+                        routing: routing
+                    }
+                )
             })
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
