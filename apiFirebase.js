@@ -581,7 +581,7 @@ function setTransactionW (id, amount, currency, date, localAmount, stripeAmount,
         new Promise (async (res, rej) => {
             const docRef = await doc(DB, 'transactions', id);
             await setDoc(docRef, {
-                amount : amount,
+                amount : parseFloat(amount),
                 currency : currency,
                 action : action,
                 date: date,
@@ -641,7 +641,7 @@ function updateUserBalance2 (id, amount, currency, transID, action, email, statu
                         transactions: arrayUnion(
                             {   userID : id,
                                 id: transID,
-                                amount: amount,
+                                amount: parseFloat(amount),
                                 currency: currency,
                                 action: action,
                                 status: status,
@@ -658,7 +658,7 @@ function updateUserBalance2 (id, amount, currency, transID, action, email, statu
                         transactions: arrayUnion(
                         {   userID : id,
                             id: transID,
-                            amount: amount,
+                            amount: parseFloat(amount),
                             currency: currency,
                             action: action,
                             status: status,
@@ -1013,15 +1013,15 @@ function getDashUserData(user) {
     return(
         new Promise(async (res, rej) => {
             let withdraws = 0; let recived = 0; let topOps = 0; let transfers = 0;
-            user.transactions.map(trasanction => {
+            user.transactions.map(transaction => {
                 if(transaction.action === "withdaw"){
                     withdraws = withdraws + transaction.amount
                 }
-                if(trasanction.action === "recived"){
+                if(transaction.action === "recived"){
                     recived = recived + transaction.amount
                 }
                 if(transaction.action === "charge" || transaction.action === "top-Op"){
-                    topOps = topOps + trasanction.amount
+                    topOps = topOps + transaction.amount
                 }
                 if(transaction.action === "transfer"){
                     transfers = transfers + transaction.amount

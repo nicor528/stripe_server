@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {validuser, newUser, getDataUser, getChangesCurrencys, stripeIDs, activateWallet} = require('../apiFirebase');
+const {validuser, newUser, getDataUser, getChangesCurrencys, stripeIDs, activateWallet, getDashUserData} = require('../apiFirebase');
 const { getAccount, createAccount, createCustomer } = require('../apiStripe');
 const { SingInPass, CreateEmailUser } = require('../apiAuth');
 
@@ -111,6 +111,7 @@ router.post("/SingIn2", async (req, res) => {
               currencys: currencys,
               dashData: dashData
             }
+            console.log(responseData)
             res.status(200).send(responseData)
           }).catch(error => {res.status(404).send(error)})
         }).catch(error => {res.status(404).send(error)})
