@@ -89,24 +89,30 @@ router.post("/SingIn2", async (req, res) => {
             stripeIDs(user.id, account.id, customerID).then(user => {
               activateWallet(user.id).then(user => {
                 getChangesCurrencys().then(currencys => {
-                  const responseData = {
-                    user : user,
-                    currencys: currencys
-                  }
-                  res.status(200).send(responseData)
-                })
-              })
-            })
+                  getDashUserData(user).then(dashData => {
+                    const responseData = {
+                      user : user,
+                      currencys: currencys,
+                      dashData: dashData
+                    }
+                    res.status(200).send(responseData)
+                  }).catch(error => {res.status(404).send(error)})
+                }).catch(error => {res.status(404).send(error)})
+              }).catch(error => {res.status(404).send(error)})
+            }).catch(error => {res.status(404).send(error)})
           }).catch(error => {res.status(404).send(error)})
         }).catch(error => {res.status(404).send(error)})
       }else {
         console.log("test3")
         getChangesCurrencys().then(currencys => {
-          const responseData = {
-            user : user,
-            currencys: currencys
-          }
-          res.status(200).send(responseData)
+          getDashUserData(user).then(dashData => {
+            const responseData = {
+              user : user,
+              currencys: currencys,
+              dashData: dashData
+            }
+            res.status(200).send(responseData)
+          }).catch(error => {res.status(404).send(error)})
         }).catch(error => {res.status(404).send(error)})
       }
     })

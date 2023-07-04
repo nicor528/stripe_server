@@ -1009,6 +1009,34 @@ function setStripeCardCancel (id) {
     )
 }
 
+function getDashUserData(user) {
+    return(
+        new Promise(async (res, rej) => {
+            let withdraws = 0; let recived = 0; let topOps = 0; let transfers = 0;
+            user.transactions.map(trasanction => {
+                if(transaction.action === "withdaw"){
+                    withdraws = withdraws + transaction.amount
+                }
+                if(trasanction.action === "recived"){
+                    recived = recived + transaction.amount
+                }
+                if(transaction.action === "charge" || transaction.action === "top-Op"){
+                    topOps = topOps + trasanction.amount
+                }
+                if(transaction.action === "transfer"){
+                    transfers = transfers + transaction.amount
+                }
+            })
+            res({
+                withdraws: withdraws,
+                recived: recived,
+                topOps: topOps,
+                transfers: transfers
+            })
+        })
+    )
+}
+
 module.exports = {
     auth,
     getUsers,
@@ -1043,5 +1071,6 @@ module.exports = {
     getTransactions,
     setReportsUserData,
     getTransactionAdmin,
-    getCardRequests
+    getCardRequests,
+    getDashUserData
 }
