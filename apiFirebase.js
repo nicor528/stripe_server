@@ -415,6 +415,7 @@ function getDataUser (id) {
                     topOps: topOps,
                     transfers: transfers
                 }
+                console.log({...user, dashData})
                 res({...user, dashData});
             } else {
                 // doc.data() will be undefined in this case

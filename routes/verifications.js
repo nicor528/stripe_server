@@ -159,7 +159,9 @@ router.post("/confirmCodeWithdraw", async (req, res) => {
                 withdraw2(user.stripe.accountID, trans.stripeAmount, user.currency).then(transfer => {
                     updateBalance(-trans.amount).then(balance => {
                         updateUserBalance2(id, -trans.amount, trans.currency, transfer.id, trans.action, "", "success", trans.date).then(user => {
-                            res.status(200).send(user)
+                            getDataUser(id).then(user => {
+                                res.status(200).send(user)
+                            })
                         }).catch(error => {console.log(error), res.status(404).send("error")})
                     }).catch(error => {console.log(error), res.status(404).send("error")})
                 }).catch(error => {console.log(error), res.status(404).send("error")})
@@ -190,7 +192,9 @@ router.post("/confirmChargeCode", async (req, res) => {
                     console.log("test3??????")
                     updateUserBalance2(id, userAmount, trans.currency, charge.id, "charge", "", charge.status, trans.date).then(user => {
                         console.log("test4")
-                        res.status(200).send(user)
+                        getDataUser(id).then(user => {
+                            res.status(200).send(user)
+                        })
                     }).catch(error => {console.log(error, "?=?=?=?=?=?"), res.status(404).send("error")})
                 }).catch(error => {console.log(error, "==??=?=?="), res.status(404).send("error")})
             }).catch(error => {console.log(error), res.status(404).send("error")})
@@ -210,7 +214,9 @@ router.post("/confirmCodeTransfer", async (req, res) => {
                 updateUserBalance2(id, amount, trans.currency, transactionID, "transfer", trans.userInteraction, "succeeded", trans.date).then(USER => {
                     searchDestination(trans.userInteraction).then(user => {
                         updateUserBalance2(user.id, trans.amount, trans.currency, transactionID, "recived", email, "succeeded", trans.date).then( data => {
-                            res.status(200).send(USER)
+                            getDataUser(id).then(user => {
+                                res.status(200).send(user)
+                            })
                         })
                     })
                 })

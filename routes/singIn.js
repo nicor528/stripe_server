@@ -81,7 +81,7 @@ router.post("/SingIn2", async (req, res) => {
   const email = req.body.email;
   SingInPass(email, password).then(user => {
     getDataUser(user.uid).then(user => {
-      console.log(Object.keys(user.stripe.accountID).length, user.stripeAccount, user.phoneVerified)
+      //console.log(Object.keys(user.stripe.accountID).length, user.stripeAccount, user.phoneVerified)
       if(!user.stripeAccount && Object.keys(user.stripe.accountID).length < 1 && user.phoneVerified && user.identityVerified && user.addressVerified){
         console.log("test1")
         createAccount(user).then(account => {
@@ -111,7 +111,7 @@ router.post("/SingIn2", async (req, res) => {
               currencys: currencys,
               dashData: dashData
             }
-            console.log(responseData)
+            //console.log(responseData)
             res.status(200).send(responseData)
           }).catch(error => {res.status(404).send(error)})
         }).catch(error => {res.status(404).send(error)})
