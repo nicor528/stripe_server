@@ -224,7 +224,7 @@ function getBalance () {
     new Promise ((res, rej) => {
       stripe.balance.retrieve().then(balance => {
         res(balance)
-      })
+      }).catch(error => {console.log(error); rej(error)})
     })
   )
 }

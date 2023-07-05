@@ -33,7 +33,8 @@ const {
     createAccount, 
     createCustomer, 
     withdraw2, 
-    addMoney } = require('../apiStripe');
+    addMoney, 
+    getBalance} = require('../apiStripe');
 const { verifyAddress } = require('../apiAddress');
 const { createCode } = require('../apiTwilio');
 const { SingInPass, CreateEmailUser } = require('../apiAuth');
@@ -67,8 +68,15 @@ router.post("/getCardRequests", async (req, res) => {
 })
 
 router.post("/getDashData", async (req, res) => {
-    getUsers().then(data => {
-        res.status(200).send(data)
+    getUsers().then(usersData => {
+        getBalance().then(balance => {
+            const data = {
+                usersData,
+                balance : balance
+            }
+            console.log(data, balance)
+            res.status(200).send(data)
+        })
     }).catch(error => {
         console.log(error)
         res.status(400).send(error)
