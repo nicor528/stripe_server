@@ -91,7 +91,7 @@ router.post("/SingIn2", async (req, res) => {
                 getChangesCurrencys().then(currencys => {
                   getDashUserData(user).then(dashData => {
                     const responseData = {
-                      user : user,
+                      user : {...user, dashData},
                       currencys: currencys,
                       dashData: dashData
                     }

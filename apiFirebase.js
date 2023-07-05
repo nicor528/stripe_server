@@ -340,9 +340,7 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                 identityVerified: false,
                 stripeAccount: false,
                 cards: [],
-                banckAccount: {
-                    id: ""
-                },
+                banckAccount: [],
                 transactions: [],
                 contactList:[],
                 country: country,
