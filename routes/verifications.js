@@ -158,7 +158,7 @@ router.post("/confirmCodeWithdraw", async (req, res) => {
             getTransaction(id).then(trans => {
                 withdraw2(user.stripe.accountID, trans.stripeAmount, user.currency).then(transfer => {
                     updateBalance(-trans.amount).then(balance => {
-                        updateUserBalance2(id, -trans.amount, trans.currency, transfer.id, trans.action, "", "success", trans.date).then(user => {
+                        updateUserBalance2(id, -trans.amount, trans.currency, transfer.id, trans.action, "", "success", trans.date, trans.objectDate).then(user => {
                             getDataUser(id).then(user => {
                                 res.status(200).send(user)
                             })
@@ -190,7 +190,7 @@ router.post("/confirmChargeCode", async (req, res) => {
                 console.log("test2")
                 addMoney(user.stripe.customerID, stripeAmount, user.currency).then(charge => {
                     console.log("test3??????")
-                    updateUserBalance2(id, userAmount, trans.currency, charge.id, "charge", "", charge.status, trans.date).then(user => {
+                    updateUserBalance2(id, userAmount, trans.currency, charge.id, "charge", "", charge.status, trans.date, trans.objectDate).then(user => {
                         console.log("test4")
                         getDataUser(id).then(user => {
                             res.status(200).send(user)
@@ -211,9 +211,9 @@ router.post("/confirmCodeTransfer", async (req, res) => {
             getTransaction(id).then(trans => {
                 const email = user.email
                 const amount = trans.amount * -1
-                updateUserBalance2(id, amount, trans.currency, transactionID, "transfer", trans.userInteraction, "succeeded", trans.date).then(USER => {
+                updateUserBalance2(id, amount, trans.currency, transactionID, "transfer", trans.userInteraction, "succeeded", trans.date, trans.objectDate).then(USER => {
                     searchDestination(trans.userInteraction).then(user => {
-                        updateUserBalance2(user.id, trans.amount, trans.currency, transactionID, "recived", email, "succeeded", trans.date).then( data => {
+                        updateUserBalance2(user.id, trans.amount, trans.currency, transactionID, "recived", email, "succeeded", trans.date, trans.objectDate).then( data => {
                             getDataUser(id).then(user => {
                                 res.status(200).send(user)
                             })

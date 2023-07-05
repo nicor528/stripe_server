@@ -643,7 +643,7 @@ function getTransaction (id) {
     )
 }
 
-function updateUserBalance2 (id, amount, currency, transID, action, email, status, date) {
+function updateUserBalance2 (id, amount, currency, transID, action, email, status, date, objectDate) {
     return (
         new Promise (async (res,rej) => {
             const docRef = await doc(DB, 'Users', id);
@@ -669,6 +669,7 @@ function updateUserBalance2 (id, amount, currency, transID, action, email, statu
                                 action: action,
                                 status: status,
                                 date: date,
+                                objectDate,
                                 userInteraction: action === "charge" || action === "withdraw" ? "N/A" : email,
                             })
                         })
@@ -686,6 +687,7 @@ function updateUserBalance2 (id, amount, currency, transID, action, email, statu
                             action: action,
                             status: status,
                             date: date,
+                            objectDate,
                             userInteraction: action === "charge" || action === "withdraw" ? "N/A" : email,
                         })
                     })
