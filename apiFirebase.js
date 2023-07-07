@@ -300,6 +300,7 @@ const getTransactions = async () => {
 
 const newUser = async (id, name, email, lastName, country, currency, phone, password,
     day, month, year) =>{
+        console.log("")
 
     return(
         new Promise (async (res, rej) =>{
@@ -396,6 +397,7 @@ function getDataUser (id) {
                 let withdraws = 0; let recived = 0; let topOps = 0; let transfers = 0;
                 user.transactions.map(transaction => {
                     if(transaction.action === "withdraw"){
+                        console.log("hola")
                         withdraws = withdraws + transaction.amount
                     }
                     if(transaction.action === "recived"){
