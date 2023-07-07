@@ -40,7 +40,7 @@ function compareFaces (image1, image2) {
 }
 
 function compareDNI(image, dniNumber) {
-  return new Promise((resolve, reject) => {
+  return new Promise((res, rej) => {
     const params = {
       Image: {
         Bytes: image,
@@ -50,7 +50,7 @@ function compareDNI(image, dniNumber) {
     rekognition.detectText(params, (err, data) => {
       if (err) {
         console.log(err, err.stack);
-        reject(err);
+        rej(err);
       } else {
         console.log(data);
         const detectedTexts = data.TextDetections.filter(
@@ -68,9 +68,9 @@ function compareDNI(image, dniNumber) {
         );
 
         if (matchedDNI) {
-          resolve();
+          res();
         } else {
-          reject(new Error('DNI number does not match'));
+          rej(new Error('DNI number does not match'));
         }
       }
     });

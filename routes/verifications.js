@@ -20,7 +20,7 @@ router.post("/verifyIdentity", async (req, res) => {
                     }).catch(error => {res.status(404).send(error)})
                 }).catch(error =>{res.status(400).send(error)})
             }else{
-                getDataUser(id).then(user=> {
+                setVerifiedTrue(id, ID).then(user=> {
                     res.status(200).send(user)
                 }).catch(error =>{res.status(404).send(error)})
             }
