@@ -84,6 +84,11 @@ router.post("/SingIn2", async (req, res) => {
       if(user.isBlocked){
         res.status(407).send({user: "blocked"})
       }else{
+        console.log(Object.keys(user.stripe.accountID).length)
+        console.log(!user.stripeAccount)
+        console.log(user.phoneVerified)
+        console.log(user.identityVerified)
+        console.log(user.addressVerified)
         if(!user.stripeAccount && Object.keys(user.stripe.accountID).length < 1 && user.phoneVerified && user.identityVerified && user.addressVerified){
           console.log("test1")
           createAccount(user).then(account => {
@@ -107,11 +112,10 @@ router.post("/SingIn2", async (req, res) => {
         }else {
           console.log("test3")
           getChangesCurrencys().then(currencys => {
-            getDashUserData(user).then(dashData => {
+            getDataUser(user.id).then(user => {
               const responseData = {
-                user : {...user, dashData},
-                currencys: currencys,
-                dashData: dashData
+                user : user,
+                currencys: currencys
               }
               //console.log(responseData)
               res.status(200).send(responseData)
