@@ -395,7 +395,7 @@ function getDataUser (id) {
                 const user = docSnap.data();
                 let withdraws = 0; let recived = 0; let topOps = 0; let transfers = 0;
                 user.transactions.map(transaction => {
-                    if(transaction.action === "withdaw"){
+                    if(transaction.action === "withdraw"){
                         withdraws = withdraws + transaction.amount
                     }
                     if(transaction.action === "recived"){
