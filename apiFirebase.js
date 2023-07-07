@@ -314,6 +314,7 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                     month: localMonth,
                     year: localYear
                 },
+                isBlocked: false,
                 password: password,
                 name: name,
                 email: email,
@@ -942,6 +943,23 @@ function closeCardRequest (user, state, cardId, reason) {
     )
 }
 
+function deleteCard (card, id) {
+    return(
+        new Promise (async (res, rej) => {
+            const docRef = await doc(DB, "Users", id)
+            await updateDoc(docRef, arrayRemove({card})).then(async (data) => {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    res(docSnap.data());
+                } else {
+                    // doc.data() will be undefined in this case
+                    rej(docSnap)
+                }
+            }).catch(error => {console.log(error); rej(error)})
+        })
+    )
+}
+
 function setStripeCard (card, id) {
     return(
         new Promise (async (res, rej) => {
@@ -1060,6 +1078,24 @@ function getDashUserData(user) {
     )
 }
 
+function updateBlock (id, state) {
+    return(
+        new Promise (async (res, rej) => {
+            const docRef = await doc(DB, "Users", id);
+            await updateDoc(docRef, {
+                isBlocked : !state
+            })
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                res(docSnap.data());
+            } else {
+                    // doc.data() will be undefined in this case
+                rej(docSnap)
+            }
+        })
+    )
+}
+
 module.exports = {
     auth,
     getUsers,
@@ -1095,5 +1131,7 @@ module.exports = {
     setReportsUserData,
     getTransactionAdmin,
     getCardRequests,
-    getDashUserData
+    getDashUserData,
+    deleteCard,
+    updateBlock
 }

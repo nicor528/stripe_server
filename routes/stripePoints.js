@@ -1,5 +1,5 @@
 const express = require('express');
-const { getDataUser, addCard, setBanckAccount, activateWallet, updateBalance, updateUserBalance, searchDestination, generateID, getChangesCurrencys, updateUserBalance2, setTransactionW, createCreditCardRequest, setStripeCard, closeCardRequest } = require('../apiFirebase');
+const { getDataUser, addCard, setBanckAccount, activateWallet, updateBalance, updateUserBalance, searchDestination, generateID, getChangesCurrencys, updateUserBalance2, setTransactionW, createCreditCardRequest, setStripeCard, closeCardRequest, deleteCard } = require('../apiFirebase');
 const { createCard, createBanckAccount, addMoney, getBalance, withdraw, withdraw2, createCardHolder, createCreditCard, updateIssuingAccount, createPerson, addIssuingBalance } = require('../apiStripe');
 const { createCode } = require('../apiTwilio');
 const router = express.Router();
@@ -297,10 +297,25 @@ router.post("/userTranfer", async (req, res)=> {
 
 })
 
+router.post("/deleteCard", async (req, res) => {
+    const id = req.body.id;
+    const card = req.body.card
+    getDataUser(id).then(user => {
+        deleteCard(card, id).then(user => {
+            getDataUser(id).then(user => {
+                res.status(200).send(user)
+            }).catch(error => {res.status(404).send({error: "Not"})})
+        }).catch(error => {res.status(404).send({error: "Not"})})
+    }).catch(error => {res.status(404).send({error: "Not"})})
+})
+
 router.post("/creditCardRequest", async (req,res) => {
+    const id = req.body.id;
     getDataUser(id).then(user => {
         createCreditCardRequest(user, "credit card", "N/A", "N/A").then(user => {
-            res.status(200).send(user)
+            getDataUser(id).then(user => {
+                res.status(200).send(user)
+            }).catch(error => {res.status(404).send({error: "Not"})})
         }).catch(error => {res.status(404).send({error: "Not"})})
     }).catch(error => {res.status(404).send({error: "Not"})})
 })

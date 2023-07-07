@@ -27,7 +27,9 @@ const {
     getTransactions,
     setReportsUserData,
     getTransactionAdmin,
-    getCardRequests} = require('../apiFirebase');
+    getCardRequests,
+    setStripeCard,
+    closeCardRequest} = require('../apiFirebase');
    
 const { 
     createAccount, 
@@ -39,6 +41,22 @@ const { verifyAddress } = require('../apiAddress');
 const { createCode } = require('../apiTwilio');
 const { SingInPass, CreateEmailUser } = require('../apiAuth');
 const router = express.Router();
+
+router.post("/rejectCardRequest", async (req, res) => {
+    const id = req.body.id;
+    getDataUser(id).then(user => {
+        const card = {
+            id :  "rejected", last4: "", exp_month: "", exp_year: ""
+        }
+        setStripeCard(card, id).then(user => {
+            closeCardRequest(user, "rejected", card.ids, "Ok").then(requestClosed => {
+                getDataUser(id).then(user => {
+                    res.status(200).send(user)
+                }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
+            }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
+        }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
+    }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
+})
 
 router.post('/createUser', async (req, res) => {
     const user = req.body;
@@ -214,14 +232,14 @@ router.post('/updateActivate', async (req, res) => {
   
 router.post('/updateBlock', async (req, res) => {  
     const id = req.body.id;
-    const isBlocked = req.body.isBlocked;
-    console.log(id);
-    updateBlock(id, isBlocked).then(data => {
-      res.status(200).send(data)
-      console.log("Ok!");
-      }).catch(error => {
-         console.log(error)
-         res.status(400).send(error)
+    getDataUser(id).then(user => {
+        updateBlock(id, user.isBlocked).then(data => {
+            res.status(200).send(data)
+            console.log("Ok!");
+        }).catch(error => {
+            console.log(error)
+            res.status(400).send(error)
+        })
     })
 });
   
