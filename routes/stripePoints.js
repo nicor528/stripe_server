@@ -25,7 +25,9 @@ router.post("/addCard", async (req, res) => {
     getDataUser(id).then(user => {
         createCard(cardNumber, CVC, month, year, user.stripe.customerID, user.currency).then(card => {
             addCard(card, id).then(user => {
-                res.status(200).send(user)
+                getDataUser(id).then(user => {
+                    res.status(200).send(user)
+                })
             }).catch(error => {
                 res.status(404).send("error")
             })
@@ -318,21 +320,6 @@ router.post("/creditCardRequest", async (req,res) => {
             }).catch(error => {res.status(404).send({error: "Not"})})
         }).catch(error => {res.status(404).send({error: "Not"})})
     }).catch(error => {res.status(404).send({error: "Not"})})
-})
-
-router.post("/confirmCreditCard", async (req, res) => {
-    const id = req.body.id;
-    getDataUser(id).then(user => {
-        createCardHolder(user).then(holder => {
-            createCreditCard(holder.id, user).then(card => {
-                setStripeCard(card, id).then(user => {
-                    closeCardRequest(user, "aproved", card.id, "Ok").then(requestClosed => {
-                        res.status(200).send(user)
-                    }).catch(error => {console.log(error), res.status(403).send({error: "Not"})})
-                }).catch(error => {console.log(error), res.status(403).send({error: "Not"})})
-            }).catch(error => {console.log(error), res.status(403).send({error: "Not"})})
-        }).catch(error => {console.log(error),res.status(400).send({error: "Not"})})
-    }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
 })
 
 router.post("/cancelCardRequest", async (req, res) => {

@@ -36,7 +36,9 @@ const {
     createCustomer, 
     withdraw2, 
     addMoney, 
-    getBalance} = require('../apiStripe');
+    getBalance,
+    createCardHolder,
+    createCreditCard} = require('../apiStripe');
 const { verifyAddress } = require('../apiAddress');
 const { createCode } = require('../apiTwilio');
 const { SingInPass, CreateEmailUser } = require('../apiAuth');
@@ -44,12 +46,17 @@ const router = express.Router();
 
 router.post("/rejectCardRequest", async (req, res) => {
     const id = req.body.id;
+    const localDate = new Date();
+    const localDay = await localDate.getDate();
+    const localMonth = await localDate.getMonth() + 1; 
+    const localYear = await localDate.getFullYear();
+    const date = localDay + "/" + localMonth + "/" + localYear
     getDataUser(id).then(user => {
         const card = {
             id :  "rejected", last4: "", exp_month: "", exp_year: ""
         }
         setStripeCard(card, id).then(user => {
-            closeCardRequest(user, "rejected", card.ids, "Ok").then(requestClosed => {
+            closeCardRequest(user, "rejected", card.id, "Ok", date).then(requestClosed => {
                 getDataUser(id).then(user => {
                     res.status(200).send(user)
                 }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
@@ -99,6 +106,26 @@ router.post("/getDashData", async (req, res) => {
         console.log(error)
         res.status(400).send(error)
     })
+})
+
+router.post("/confirmCreditCard", async (req, res) => {
+    const id = req.body.id;
+    const localDate = new Date();
+    const localDay = await localDate.getDate();
+    const localMonth = await localDate.getMonth() + 1; 
+    const localYear = await localDate.getFullYear();
+    const date = localDay + "/" + localMonth + "/" + localYear
+    getDataUser(id).then(user => {
+        createCardHolder(user).then(holder => {
+            createCreditCard(holder.id, user).then(card => {
+                setStripeCard(card, id).then(user => {
+                    closeCardRequest(user, "aproved", card.id, "Ok", date).then(requestClosed => {
+                        res.status(200).send(user)
+                    }).catch(error => {console.log(error), res.status(403).send({error: "Not"})})
+                }).catch(error => {console.log(error), res.status(403).send({error: "Not"})})
+            }).catch(error => {console.log(error), res.status(403).send({error: "Not"})})
+        }).catch(error => {console.log(error, "tesssst"),res.status(400).send({error: "Not"})})
+    }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
 })
 
 router.post("/getTransaction", async (req, res) => {
@@ -198,8 +225,17 @@ router.post('/deleteUser', async (req, res) => {
         res.status(400).send({error: "No user found"})
     })
 });
+
+router.post("resetPass", async (req, res) => {
+    const id = req.body.id;
+    resetPass(id).then( data => {
+        getDataUser(id).then(user => {
+            res.status(200).send(user)
+        })
+    })
+})
   
-  
+/*
 router.post('/resetPassword', async (req, res) => {
     const id = req.body.id;
     const password = req.body.password;
@@ -215,7 +251,7 @@ router.post('/resetPassword', async (req, res) => {
         console.log(error)
         res.status(400).send(error)
     })
-});
+});*/
   
 router.post('/updateActivate', async (req, res) => {
     const id = req.body.id;

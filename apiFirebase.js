@@ -55,17 +55,18 @@ function getCardRequests () {
             getDocs(pendigRef).then(async (snapshot) => {
                 const pendingRequests = snapshot.docs.map(request => {
                     const request2 = request.data()
-                    return request2
+                    return {...request2}
                 })
                 getDocs(closedRef).then(async (snapshot) => {
                     const closedRequests = snapshot.docs.map(request => {
                         const request2 = request.data()
-                        return request2
+                        return {...request2}
                     })
-                    const data = [...pendingRequests, ...closedRequests]
+                    const combinedRequests = [...pendingRequests, ...closedRequests]
                     const data2 = await closedRequests.concat(pendingRequests)
-                    console.log(pendingRequests)
-                    res(pendingRequests)
+                    console.log(...combinedRequests)
+                    res(combinedRequests);
+                
                 })
             }).catch(error => {rej(error)})
             
@@ -890,12 +891,13 @@ function getSMSCode (id, CODE) {
     )
 }
 
-function createCreditCardRequest (user, request, reason, cardId) {
+function createCreditCardRequest (user, request, reason, cardId, date) {
     return new Promise (async (res, rej) => {
         const docRef = await doc(DB, "request", "pending", "requests", user.id);
         const docRef2 = await doc(DB, "Users", user.id)
         await setDoc(docRef, {
             id : user.id,
+            date: date,
             user: {
                 name : user.name,
                 lastName : user.lastName,
@@ -904,7 +906,8 @@ function createCreditCardRequest (user, request, reason, cardId) {
             request : request,
             state: "pending",
             reason: reason,
-            cardId: cardId
+            cardId: cardId,
+            country: user.country
         })
         await updateDoc(docRef2, {
             stripeCard : arrayUnion(
@@ -921,7 +924,7 @@ function createCreditCardRequest (user, request, reason, cardId) {
     })
 }
 
-function closeCardRequest (user, state, cardId, reason) {
+function closeCardRequest (user, state, cardId, reason, date) {
     return (
         new Promise (async (res, rej) => {
             const id = await generateID();
@@ -932,7 +935,8 @@ function closeCardRequest (user, state, cardId, reason) {
             await updateDoc(docRef, {
                 state: state,
                 reason: reason === 0 ? request.reason : reason,
-                cardId: cardId
+                cardId: cardId,
+                date: date
             })
             const docSnapRequest = await getDoc(docRef);
             const data = docSnapRequest.data()
@@ -1098,6 +1102,24 @@ function updateBlock (id, state) {
     )
 }
 
+function resetPass (id) {
+    return(
+        new Promise (async (res, rej) => {
+            const docRef = await doc(DB, "Users", id);
+            await updateDoc(docRef, {
+                password: "123456"
+            })
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                res(docSnap.data());
+            } else {
+                    // doc.data() will be undefined in this case
+                rej(docSnap)
+            }
+        })
+    )
+}
+
 module.exports = {
     auth,
     getUsers,
@@ -1135,5 +1157,6 @@ module.exports = {
     getCardRequests,
     getDashUserData,
     deleteCard,
-    updateBlock
+    updateBlock,
+    resetPass
 }
