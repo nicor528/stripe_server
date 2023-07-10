@@ -10,7 +10,9 @@ router.post("/createCard", async (req,res) => {
     getDataUser(User.id).then(user => {
         createCard(card, user.stripe.customerID).then(card => {
             addCard(card, User.id).then(user => {
-                res.status(200).send(user)
+                getDataUser(id).then(user => {
+                    res.status(200).send(user)
+                })
             }).catch(error => {console.log(error)})
         }).catch(error => {console.log(error)})
     }).catch(error => {console.log(error)})
