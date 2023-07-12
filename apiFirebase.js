@@ -1,5 +1,6 @@
 //import { initializeApp } from "firebase/app";
 require('dotenv').config();
+const { getStorage } = require("firebase/storage")
 const {initializeApp} = require("firebase/app")
 const {getFirestore, collection,
     getDocs,
@@ -30,12 +31,13 @@ const firebaseConfig = {
     projectId: process.env.projectId,
     storageBucket: process.env.storageBucket,
     messagingSenderId: process.env.messagingSenderId,
-    appId: process.env.appId
+    appId: process.env.appId,
 }
 
 const app =  initializeApp(firebaseConfig);
 const DB =  getFirestore(app);
 const auth =  getAuth(app);
+const storage = getStorage(app);
 
 function generateID () {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -316,6 +318,7 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                     month: localMonth,
                     year: localYear
                 },
+                recepiants: [],
                 isBlocked: false,
                 password: password,
                 name: name,
@@ -349,7 +352,12 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                 country: country,
                 COUNTRY: country ==="US" ? "United states" : "United Kingdom",
                 currency: country==="US" ? "USD" : "GBP",
-                stripeCard: [],
+                stripeCard: [{
+                    id: "",
+                    last4: "",
+                    exp_year: "",
+                    exp_month: ""
+                }],
                 stripe: {
                     accountID: "",
                     customerID: "",
@@ -1120,8 +1128,58 @@ function resetPass (id) {
     )
 }
 
+function setIdUrl (id, url) {
+    return(
+        new Promise(async (res, rej) => {
+            const docRef = doc(DB, 'Users', id);
+            await updateDoc(docRef, {
+                idUrl: url
+            })
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                res(docSnap.data());
+            } else {
+                  // doc.data() will be undefined in this case
+                rej(docSnap)
+            }
+        })
+    )
+}
+
+function getRecepiants (recepiants) {
+    return(
+        new Promise (async (res, rej) => {
+            if(recepiants.length > 0){
+                const DBRef = await collection(DB, "Users");
+                getDocs(DBRef).then(async (snapshot) => {
+                    const users = snapshot.docs.map((user) => user.data());
+                    const dataRecepiants = await Promise.all( recepiants.map(async (recepiant) => {
+                        const userData = await users.find((user) => user.email == recepiant.email);
+                        console.log(userData)
+                        if (userData) {
+                            console.log(userData)
+                          return {
+                            email: userData.email,
+                            name: userData.name,
+                            lastName: userData.lastName,
+                            state:
+                            userData.stripeAccount && !userData.isBlocked ? "Active" : "Inactive",
+                          };
+                        }
+                    }))
+                    console.log(dataRecepiants)
+                    res(dataRecepiants)
+                }).catch(error => {console.log(error), rej(error)})
+            }else{
+                res([{email: "", name: "", lastName: "", state: ""}])
+            }
+        })
+    )
+}
+
 module.exports = {
     auth,
+    storage,
     getUsers,
     validuser,
     newUser,
@@ -1158,5 +1216,7 @@ module.exports = {
     getDashUserData,
     deleteCard,
     updateBlock,
-    resetPass
+    resetPass,
+    getRecepiants,
+    setIdUrl
 }

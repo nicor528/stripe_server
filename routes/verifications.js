@@ -1,9 +1,10 @@
 const express = require('express');
 const { compareFaces, compareDNI } = require('../apiAmazon');
-const { getDataUser, setVerifiedTrue, stripeIDs, activateWallet, getUsers, getChangesCurrencys, confirmCell, getSMSCode, getTransaction, updateBalance, updateUserBalance2, generateID, searchDestination, editAddress } = require('../apiFirebase');
+const { getDataUser, setVerifiedTrue, stripeIDs, activateWallet, getUsers, getChangesCurrencys, confirmCell, getSMSCode, getTransaction, updateBalance, updateUserBalance2, generateID, searchDestination, editAddress, setIdUrl } = require('../apiFirebase');
 const { createAccount, createCustomer, withdraw2, addMoney } = require('../apiStripe');
 const { verifyAddress } = require('../apiAddress');
 const { createCode } = require('../apiTwilio');
+const { uploadID } = require('../apiStorage');
 const router = express.Router();
 
 
@@ -16,7 +17,12 @@ router.post("/verifyIdentity", async (req, res) => {
             if(data.FaceMatches.length > 0){
                 compareDNI(image1Buffer, ID).then(x => {
                     setVerifiedTrue(id, ID).then(user => {
-                        res.status(200).send(user)
+                        uploadID(user.id, image1Buffer).then(url => {
+                            setIdUrl(id, url).then(user => {
+                                res.status(404).send(user)
+                            }).catch(error =>{res.status(404).send(error)})
+                            res.status(404).send(user)
+                        }).catch(error => {res.status(404).send(error)})
                     }).catch(error => {res.status(404).send(error)})
                 }).catch(error =>{res.status(400).send(error)})
             }else{

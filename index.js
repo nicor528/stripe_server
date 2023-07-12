@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const stripePoints = require ("./routes/stripePoints");
 const Edits = require("./routes/editPoints");
 const admin = require("./routes/admin");
+const especific = require("./routes/especificPoints")
 
 
 const app = express()
@@ -40,6 +41,7 @@ app.use(Verify)
 app.use(stripePoints)
 app.use(Edits)
 app.use(admin)
+app.use(especific)
 
 const PORT = process.env.PORT || 4242;
 app.listen(PORT, () => console.log("server up en", PORT));
