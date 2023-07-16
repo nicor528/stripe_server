@@ -19,11 +19,11 @@ router.post("/verifyIdentity", async (req, res) => {
                     setVerifiedTrue(id, ID).then(user => {
                         uploadID(user.id, image1Buffer).then(url => {
                             setIdUrl(id, url).then(user => {
-                                res.status(404).send(user)
+                                res.status(200).send(user)
                             }).catch(error =>{res.status(404).send(error)})
                         }).catch(error => {res.status(404).send(error)})
                     }).catch(error => {res.status(404).send(error)})
-                }).catch(error =>{res.status(400).send(error)})
+                }).catch(error =>{console.log(error), res.status(400).send(error)})
             }else{
                 res.status(401).send("error")
             }
