@@ -14,7 +14,7 @@ router.post("/verifyIdentity", async (req, res) => {
     const image2Buffer = await Buffer.from(image2.split(",")[1], "base64");
     getDataUser(id).then(user => {
         compareFaces(image1Buffer, image2Buffer).then(data => {
-            if(data.FaceMatches.length > 0){
+            //if(data.FaceMatches.length > 0){
                 compareDNI(image1Buffer, ID).then(x => {
                     setVerifiedTrue(id, ID).then(user => {
                         uploadID(user.id, image1Buffer).then(url => {
@@ -24,9 +24,9 @@ router.post("/verifyIdentity", async (req, res) => {
                         }).catch(error => {res.status(404).send(error)})
                     }).catch(error => {res.status(404).send(error)})
                 }).catch(error =>{console.log(error), res.status(400).send(error)})
-            }else{
-                res.status(401).send(data.FaceMatches)
-            }
+            //}else{
+             //   res.status(401).send(data.FaceMatches)
+            //}
         }).catch(error =>{res.status(401).send(error)})
     }).catch(error =>{res.status(404).send(error)})
 })
