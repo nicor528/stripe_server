@@ -37,9 +37,11 @@ router.post("/editAddress", async (req, res)=> {
 
 router.post("/editProfileInfo", async (req, res) => {
     const id = req.body.id;
-    const data = req.body.data;
-    editUserData(id, data).then(user => {
+    const user = req.body.user;
+    console.log(user)
+    editUserData(id, user).then(user => {
         getDataUser(id).then(user => {
+            console.log(user)
             res.status(200).send(user)
         }).catch(error => {res.status(404).send(error)})
     }).catch(error => {res.status(404).send(error)})

@@ -828,13 +828,13 @@ function editUserData (id, user) {
             await updateDoc(docRef, {
                 name: user.name,
                 lastName: user.lastName,
-                phone: user.phone,
+                //phone: user.phone,
                 email: user.email,
-                dob: {
+                /*dob: {
                     day: user.dob.day,
                     month: user.dob.month,
                     year: user.dob.year
-                    },
+                    },*/
             })
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
