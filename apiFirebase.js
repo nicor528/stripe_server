@@ -67,7 +67,7 @@ function getCardRequests () {
                     const combinedRequests = [...pendingRequests, ...closedRequests]
                     const data2 = await closedRequests.concat(pendingRequests)
                     console.log(...combinedRequests)
-                    res(combinedRequests);
+                    res(pendingRequests);
                 
                 })
             }).catch(error => {rej(error)})
