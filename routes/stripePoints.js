@@ -317,8 +317,18 @@ router.post("/deleteCard", async (req, res) => {
 
 router.post("/creditCardRequest", async (req,res) => {
     const id = req.body.id;
+    const localDate = new Date();
+    const localDay = await localDate.getDate();
+    const localMonth = await localDate.getMonth() + 1; 
+    const localYear = await localDate.getFullYear();
+    const date2 = localDay + "/" + localMonth + "/" + localYear
+    const date = {
+        day: localDay,
+        month: localMonth,
+        year: localYear
+    }
     getDataUser(id).then(user => {
-        createCreditCardRequest(user, "credit card", "N/A", "N/A").then(user => {
+        createCreditCardRequest(user, "credit card", "N/A", "N/A", date).then(user => {
             getDataUser(id).then(user => {
                 res.status(200).send(user)
             }).catch(error => {res.status(404).send({error: "Not"})})
@@ -330,8 +340,18 @@ router.post("/cancelCardRequest", async (req, res) => {
     const cardId = req.body.cardId;
     const id = req.body.id;
     const reason = req.body.reason;
+    const localDate = new Date();
+    const localDay = await localDate.getDate();
+    const localMonth = await localDate.getMonth() + 1; 
+    const localYear = await localDate.getFullYear();
+    const date2 = localDay + "/" + localMonth + "/" + localYear
+    const date = {
+        day: localDay,
+        month: localMonth,
+        year: localYear
+    }
     getDataUser(id).then(user => {
-        createCreditCardRequest(user, "cancel card", reason, cardId).then(user => {
+        createCreditCardRequest(user, "cancel card", reason, cardId, date ).then(user => {
             setCardInCancelationProcces(id, cardId).then(user => {
                 res.status(200).send(user);
             }).catch(error => {console.log(error),res.status(404).send({error: "Not"})})
