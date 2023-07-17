@@ -74,7 +74,9 @@ router.post("/addBanckAccount2", async (req, res) => {
     getDataUser(id).then(user => {
         createBanckAccount(user.stripe.accountID, user.name, user.lastName, user.country, user.currency, accountNumber).then(account => {
             setBanckAccount(id, account.external_accounts.data[0].id, accountNumber, routing).then(user => {
-                res.status(200).send(user)
+                getDataUser(id).then(user => {
+                    res.status(200).send(user)
+                })
             }).catch(error => {
                 res.status(404).send("error")
             })
