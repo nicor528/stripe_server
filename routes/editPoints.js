@@ -1,5 +1,5 @@
 const express = require('express');
-const { editAddress, editUserData, stripeIDs, getDataUser } = require('../apiFirebase');
+const { editAddress, editUserData, stripeIDs, getDataUser, deleteRecepiant } = require('../apiFirebase');
 const { editAccountAddress, createAccount, createCustomer } = require('../apiStripe');
 const router = express.Router();
 
@@ -43,6 +43,18 @@ router.post("/editProfileInfo", async (req, res) => {
         getDataUser(id).then(user => {
             console.log(user)
             res.status(200).send(user)
+        }).catch(error => {res.status(404).send(error)})
+    }).catch(error => {res.status(404).send(error)})
+})
+
+router.post("/deletRecepiant", async (req, res) => {
+    const id = req.body.id;
+    const email = req.body.email;
+    getDataUser(id).then(user => {
+        deleteRecepiant(id, email).then(data => {
+            getDataUser(id).then(user => {
+                res.status(200).send(user)
+            }).catch(error => {res.status(404).send(error)})
         }).catch(error => {res.status(404).send(error)})
     }).catch(error => {res.status(404).send(error)})
 })

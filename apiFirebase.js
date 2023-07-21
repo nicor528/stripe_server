@@ -68,7 +68,6 @@ function getCardRequests () {
                     const data2 = await closedRequests.concat(pendingRequests)
                     console.log(...combinedRequests)
                     res(pendingRequests);
-                
                 })
             }).catch(error => {rej(error)})
             
@@ -193,11 +192,12 @@ const getTransactionAdmin = async (id) => {
                     })
                 );
                 const flattenedTransactions = transactions.filter(Boolean).flat();
-                const transaction = flattenedTransactions.map(transaction => {
+                const transaction = flattenedTransactions.find((transaction) => transaction.id === id)
+                /*const transaction = flattenedTransactions.map(transaction => {
                     if(transaction.id === id){
                         return(transaction)
                     }
-                })
+                })*/
                 res(transaction)
             }).catch(error => {rej(error)})
         })
@@ -1177,6 +1177,23 @@ function getRecepiants (recepiants) {
     )
 }
 
+function deleteRecepiant (id, email) {
+    return(
+        new Promise (async (res, rej) => {
+            const docRef = doc(DB, 'Users', id);
+            updateDoc(docRef, {
+                recepiants : arrayRemove({email: email})
+            }).then(result => {
+                res(result)
+            }).catch(error => {
+                console.log(error)
+                rej(error)
+            })
+        })
+    )
+
+}
+
 module.exports = {
     auth,
     storage,
@@ -1218,5 +1235,6 @@ module.exports = {
     updateBlock,
     resetPass,
     getRecepiants,
-    setIdUrl
+    setIdUrl,
+    deleteRecepiant
 }

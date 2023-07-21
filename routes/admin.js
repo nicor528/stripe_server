@@ -38,7 +38,8 @@ const {
     addMoney, 
     getBalance,
     createCardHolder,
-    createCreditCard} = require('../apiStripe');
+    createCreditCard,
+    refoundCharge} = require('../apiStripe');
 const { verifyAddress } = require('../apiAddress');
 const { createCode } = require('../apiTwilio');
 const { SingInPass, CreateEmailUser } = require('../apiAuth');
@@ -234,6 +235,10 @@ router.post("resetPass", async (req, res) => {
         })
     })
 })
+
+router.post("/refoundCharge", async (req, res) => {
+
+})
   
 /*
 router.post('/resetPassword', async (req, res) => {
@@ -281,7 +286,7 @@ router.post('/updateBlock', async (req, res) => {
   
 router.post('/getTransaction', async (req, res) => {
     const id = req.body.tid;
-    getTransaction(id).then(data => {
+    getTransactionAdmin(id).then(data => {
       res.status(200).send(data);
       console.log("Ok!");
     }).catch(error => {
@@ -297,6 +302,26 @@ router.post('/getTotalMoney', async (req, res) => {
       res.status(400).send(error)
     });
 });
+
+router.post("/refoundTransaction", async (req, res) => {
+    console.log(req.body.transaction)
+    const transaction = req.body.transaction;
+    const localDate = new Date();
+    const localDay = await localDate.getDate();
+    const localMonth = await localDate.getMonth() + 1; 
+    const localYear = await localDate.getFullYear();
+    const date = localDay + "/" + localMonth + "/" + localYear
+    const DATE = {day: localDay, month: localMonth, year: localYear}
+    if(transaction.action === "charge" || transaction.action === "Top-up"){
+        refoundCharge(transaction).then(re => {
+            updateUserBalance2(transaction.userID, -transaction.amount, transaction.currency, re.id, "refound", "", re.status, date, DATE
+            ).then(user => {
+                res.status(200)
+            }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
+        }).catch(error => {console.log(error), res.status(404).send({error: "Not"})}) 
+    }
+
+})
 
   
   

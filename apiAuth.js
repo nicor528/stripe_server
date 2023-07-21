@@ -1,5 +1,6 @@
 require('dotenv').config();
 const {getAuth, 
+        sendPasswordResetEmail ,
         signInWithRedirect,
         GoogleAuthProvider, 
         signInWithPopup, 
@@ -42,9 +43,25 @@ function CreateEmailUser (email, password) {
     )
 }
 
+function resetPass (email) {
+    return(
+        new Promise (async (res, rej) => {
+            sendPasswordResetEmail(auth, email).then(() => {
+                res()
+            }).catch(error => {
+                console.log(error)
+                rej(error)
+            })
+        })
+    )
+}
+
+
+
 
 module.exports = {
     SingInPass,
     CreateEmailUser,
+    resetPass
 
 }

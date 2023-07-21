@@ -398,6 +398,21 @@ function addIssuingBalance (id) {
   )
 }
 
+function refoundCharge (transaction) {
+  return(
+    new Promise (async (res, rej) => {
+      stripe.refunds.create({
+        charge: transaction.id,
+      }).then(re => {
+        res(re)
+      }).catch(error => {
+        console.log(error);
+        rej(error)
+      })
+    })
+  )
+}
+
 
 
 
@@ -417,5 +432,6 @@ module.exports = {
   createCreditCard,
   updateIssuingAccount,
   createPerson,
-  addIssuingBalance
+  addIssuingBalance,
+  refoundCharge
 }
