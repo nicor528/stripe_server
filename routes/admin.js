@@ -312,14 +312,30 @@ router.post("/refoundTransaction", async (req, res) => {
     const localYear = await localDate.getFullYear();
     const date = localDay + "/" + localMonth + "/" + localYear
     const DATE = {day: localDay, month: localMonth, year: localYear}
-    if(transaction.action === "charge" || transaction.action === "Top-up"){
-        refoundCharge(transaction).then(re => {
-            updateUserBalance2(transaction.userID, -transaction.amount, transaction.currency, re.id, "refound", "", re.status, date, DATE
-            ).then(user => {
-                res.status(200)
+    const transactionID = await generateID();
+    getDataUser(transaction.userID).then(user => {
+        const email = user.email;
+        if(transaction.action === "charge" || transaction.action === "Top-up"){
+            refoundCharge(transaction).then(re => {
+                updateUserBalance2(transaction.userID, -transaction.amount, transaction.currency, re.id, "refound", "", re.status, date, DATE
+                ).then(user => {
+                    res.status(200)
+                }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
+            }).catch(error => {console.log(error), res.status(404).send({error: "Not"})}) 
+        }
+        if(transaction.action === "transfer"){
+            updateUserBalance2(transaction.userID, transaction.amount, transaction.currency, transactionID,
+            "refound", transaction.userInteraction, "success", date, DATE).then(data => {
+                searchDestination(transaction.userInteraction).then(user => {
+                    updateUserBalance2(user.id, -transaction.amount, transaction.currency, transactionID, "refound", 
+                    email, "success", date, DATE).then(user => {
+                        res.status(200)
+                    }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
+                }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
             }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
-        }).catch(error => {console.log(error), res.status(404).send({error: "Not"})}) 
-    }
+        }
+    }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
+
 
 })
 
