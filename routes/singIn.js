@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const {validuser, newUser, getDataUser, getChangesCurrencys, stripeIDs, activateWallet, getDashUserData} = require('../apiFirebase');
+const { newUser, getDataUser, getChangesCurrencys, stripeIDs, activateWallet, getDashUserData} = require('../apiFirebase');
 const { getAccount, createAccount, createCustomer } = require('../apiStripe');
-const { SingInPass, CreateEmailUser, resetPass } = require('../apiAuth');
+const { SingInPass, CreateEmailUser, resetPass, validuserG } = require('../apiAuth');
 
 router.post('/autentificarGoogleUser',async  (req, res) => {
-        const token = await req.body.token
-        console.log(token)
-        validuser(token)
-        res.status(200).send("ok");  
+  const token = await req.body.token
+  console.log(token)
+  validuserG(token).then(user => {
+    res.status(200).send("ok");  
+  }).catch(error => {res.status(404).send(error)})
 });
 
 router.post("/createEmailUser", async (req, res) => {

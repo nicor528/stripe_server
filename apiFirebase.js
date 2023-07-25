@@ -388,13 +388,6 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
     )
 }
 
-const validuser = (token) => {
-    const credential = GoogleAuthProvider.credential(token);
-    signInWithCredential(auth, credential).then(result => {
-        console.log(result)
-    })
-}
-
 
 function getDataUser (id) {
     return (
@@ -1198,7 +1191,6 @@ module.exports = {
     auth,
     storage,
     getUsers,
-    validuser,
     newUser,
     getDataUser,
     getStripeID,

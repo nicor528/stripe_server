@@ -56,12 +56,29 @@ function resetPass (email) {
     )
 }
 
+const validuserG = (token) => {
+    return(
+        new Promise (async (res, rej) => {
+            const credential = GoogleAuthProvider.credential(token);
+            signInWithCredential(auth, credential).then(result => {
+                console.log(result)
+                res(result)
+            }).catch(error => {
+                console.log(error);
+                rej(error)
+            })
+        })
+    )
+
+}
+
 
 
 
 module.exports = {
     SingInPass,
     CreateEmailUser,
-    resetPass
+    resetPass,
+    validuserG
 
 }
