@@ -69,10 +69,7 @@ const validuserG = (token) => {
             })
         })
     )
-
 }
-
-
 
 
 module.exports = {

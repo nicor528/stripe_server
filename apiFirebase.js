@@ -301,8 +301,33 @@ const getTransactions = async () => {
     )
 }
 
+const completeGmailUser = (id, user) => {
+    return(
+        new Promise (async (res, rej) => {
+            const docRef = await doc(DB, "Users", id);
+            await updateDoc(docRef,{
+                name: user.name,
+                lastName: user.lastName,
+                country: user.country,
+                currency: user.country ==="US" ? "USD" : "GBP",
+                phone: "+" + user.phone,
+                dob: {
+                    day: user.day.toString(),
+                    month: user.month.toString(),
+                    year: user.year.toString()
+                    },
+            }).then(user => {
+                res(user)
+            }).catch(error => {
+                console.log(error);
+                rej(error)
+            })
+        })
+    )
+}
+
 const newUser = async (id, name, email, lastName, country, currency, phone, password,
-    day, month, year) =>{
+    day, month, year, trparty) =>{
         console.log("")
 
     return(
@@ -318,6 +343,7 @@ const newUser = async (id, name, email, lastName, country, currency, phone, pass
                     month: localMonth,
                     year: localYear
                 },
+                trparty: trparty,
                 recepiants: [],
                 isBlocked: false,
                 password: password,
@@ -1228,5 +1254,6 @@ module.exports = {
     resetPass,
     getRecepiants,
     setIdUrl,
-    deleteRecepiant
+    deleteRecepiant,
+    completeGmailUser
 }

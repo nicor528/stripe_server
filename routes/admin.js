@@ -319,7 +319,7 @@ router.post("/refoundTransaction", async (req, res) => {
             refoundCharge(transaction).then(re => {
                 updateUserBalance2(transaction.userID, -transaction.amount, transaction.currency, re.id, "refound", "", re.status, date, DATE
                 ).then(user => {
-                    res.status(200)
+                    res.status(200).send(user)
                 }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
             }).catch(error => {console.log(error), res.status(404).send({error: "Not"})}) 
         }
@@ -329,14 +329,12 @@ router.post("/refoundTransaction", async (req, res) => {
                 searchDestination(transaction.userInteraction).then(user => {
                     updateUserBalance2(user.id, -transaction.amount, transaction.currency, transactionID, "refound", 
                     email, "success", date, DATE).then(user => {
-                        res.status(200)
+                        res.status(200).send(user)
                     }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
                 }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
             }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
         }
     }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
-
-
 })
 
   
