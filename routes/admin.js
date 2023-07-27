@@ -321,7 +321,15 @@ router.post("/refoundTransaction", async (req, res) => {
                 ).then(user => {
                     res.status(200).send(user)
                 }).catch(error => {console.log(error), res.status(404).send({error: "Not"})})
-            }).catch(error => {console.log(error), res.status(404).send({error: "Not"})}) 
+            }).catch(error => {
+                if(error.raw.code === "charge_already_refunded"){
+                    console.log("test")
+                    res.status(406).send({error: "already refunded"})
+                }else{
+                    console.log(error), res.status(404).send({error: "Not"})
+                }
+                
+            }) 
         }
         if(transaction.action === "transfer"){
             updateUserBalance2(transaction.userID, transaction.amount, transaction.currency, transactionID,
